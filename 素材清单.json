@@ -1,0 +1,86 @@
+{
+  "schema": "riwu-github-independent-inputs/1",
+  "created_at": "2026-10-12T19:09:17.2192247+08:00",
+  "images": [
+    {
+      "file": "素材/原始图卡/01.png",
+      "original_name": "ChatGPT 图像 2026年10月7日 10_43_22-1.png",
+      "dimensions": [
+        1086,
+        1448
+      ],
+      "bytes": 1967871,
+      "sha256": "2cea69be6778cf3585983315e8132706ccb2eb778841016a68adca5061ab636d",
+      "role": "Original full card, authoritative visual and content input"
+    },
+    {
+      "file": "素材/原始图卡/02.png",
+      "original_name": "ChatGPT 图像 2026年10月7日 10_43_24-2.png",
+      "dimensions": [
+        1086,
+        1448
+      ],
+      "bytes": 2053838,
+      "sha256": "4481e10673e6f7730a7738f3f5cee77e0398e44a184505ef125db3f74deb41a4",
+      "role": "Original full card, authoritative visual and content input"
+    },
+    {
+      "file": "素材/原始图卡/03.png",
+      "original_name": "ChatGPT 图像 2026年10月7日 10_43_25-3.png",
+      "dimensions": [
+        1086,
+        1448
+      ],
+      "bytes": 2008998,
+      "sha256": "bfa73b4a94436b140aa93a2564b6a88d9d709371551934473d8b69cdb7fcc89b",
+      "role": "Original full card, authoritative visual and content input"
+    },
+    {
+      "file": "素材/原始图卡/04.png",
+      "original_name": "ChatGPT 图像 2026年10月7日 10_43_26-4.png",
+      "dimensions": [
+        1086,
+        1448
+      ],
+      "bytes": 1894728,
+      "sha256": "ad92cad97b5cac22ec683bc899a07296a147e5b762d67c407f188891be25c7d1",
+      "role": "Original full card, authoritative visual and content input"
+    },
+    {
+      "file": "素材/原始图卡/05.png",
+      "original_name": "ChatGPT 图像 2026年10月7日 10_43_30-5.png",
+      "dimensions": [
+        1086,
+        1448
+      ],
+      "bytes": 2079718,
+      "sha256": "dbda094ed4938bda248bcd344860cb76cfbf4737dd7380ef2ecc1af95224e0f5",
+      "role": "Original full card, authoritative visual and content input"
+    },
+    {
+      "file": "素材/原始图卡/06.png",
+      "original_name": "ChatGPT 图像 2026年10月7日 10_43_31-6.png",
+      "dimensions": [
+        1086,
+        1448
+      ],
+      "bytes": 1867273,
+      "sha256": "367f0baff381dc042505e24cc06944a5a43c1b0325340134b836e353fc587dcc",
+      "role": "Original full card, authoritative visual and content input"
+    }
+  ],
+  "optional_audio": {
+    "file": "可选输入/现成四语配音.mp3",
+    "bytes": 384984,
+    "sha256": "7ad77475d6cc82dfa5dc2df5524d8db7f7155e0522514cdfc05b0adc3e648fe6",
+    "text_file": "可选输入/配音文本记录.txt",
+    "role": "Optional existing audio, NOT full image content or storyboard"
+  },
+  "upstream": {
+    "repository": "https://github.com/alchaincyf/huashu-art-motion",
+    "commit": "9ff59339f934e08483ba0a5b1db20f4c2c421b35",
+    "pinned_url": "https://github.com/alchaincyf/huashu-art-motion/tree/9ff59339f934e08483ba0a5b1db20f4c2c421b35",
+    "contains_previous_project_custom_code": false,
+    "remote_latest_not_verified": true
+  }
+}

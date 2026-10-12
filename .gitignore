@@ -1,0 +1,14 @@
+.env
+.env.*
+!.env.example
+node_modules/
+.venv/
+venv/
+__pycache__/
+*.pyc
+.DS_Store
+Thumbs.db
+# 生成媒体默认不上传；需要交付时另行选择具体文件。
+Claude工作区/输出/
+Claude工作区/output/
+Claude工作区/cache/
