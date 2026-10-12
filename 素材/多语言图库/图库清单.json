@@ -1,0 +1,665 @@
+{
+  "schema": "riwu-multilingual-image-library/1",
+  "created_at": "2026-10-12T22:21:48.731998+08:00",
+  "groups": [
+    {
+      "number": "M.001",
+      "source_date": "2026-09-25",
+      "topic": "中秋特刊",
+      "image_count": 1,
+      "available_material": "现存封面，仅收录实际存在的图片",
+      "images": [
+        {
+          "file": "素材/多语言图库/M.001_中秋特刊/01_cover.png",
+          "original_name": "ChatGPT 图像 2026年9月25日 18_21_44.png",
+          "source_relative_path": "9.25/多语言第一期-中秋特刊/ChatGPT 图像 2026年9月25日 18_21_44.png",
+          "bytes": 1956873,
+          "dimensions": [
+            1086,
+            1448
+          ],
+          "sha256": "39ae672a271bdd3f2dbf59156e02b853264e22726775b45af389362039020550",
+          "git_blob": "181feb9a732b83be351853eda6a0e6b1b88bcce8",
+          "existing_pilot": false
+        }
+      ]
+    },
+    {
+      "number": "M.002",
+      "source_date": "2026-10-03",
+      "topic": "水龙头起泡器",
+      "image_count": 1,
+      "available_material": "现存封面，仅收录实际存在的图片",
+      "images": [
+        {
+          "file": "素材/多语言图库/M.002_水龙头起泡器/01_cover.png",
+          "original_name": "Multilingual Faucet Aerator Close-Up.png",
+          "source_relative_path": "10.3/Multilingual Faucet Aerator Close-Up.png",
+          "bytes": 1868437,
+          "dimensions": [
+            1086,
+            1448
+          ],
+          "sha256": "74342a2d0b75f23a38dacdf8f45d1ffb3c5960b7996f76b867b6a89e83f55531",
+          "git_blob": "09863e8071ae0efcaedb44d8c9b046b1e3f60e05",
+          "existing_pilot": false
+        }
+      ]
+    },
+    {
+      "number": "M.003",
+      "source_date": "2026-10-05",
+      "topic": "指甲锉",
+      "image_count": 6,
+      "available_material": "完整六图卡组",
+      "images": [
+        {
+          "file": "素材/多语言图库/M.003_指甲锉/01_cover.png",
+          "original_name": "ChatGPT 图像 2026年10月4日 18_25_49-1.png",
+          "source_relative_path": "10.5/多语言/ChatGPT 图像 2026年10月4日 18_25_49-1.png",
+          "bytes": 2167122,
+          "dimensions": [
+            1086,
+            1448
+          ],
+          "sha256": "6d3417a853ff3a13d2fa874db1f4be7878b989384d6b4acd2d660ab53599e4e4",
+          "git_blob": "1964f096eb7e77eda7722f6d58bf08c7096da4bd",
+          "existing_pilot": false
+        },
+        {
+          "file": "素材/多语言图库/M.003_指甲锉/02_cn.png",
+          "original_name": "ChatGPT 图像 2026年10月4日 18_25_51-2.png",
+          "source_relative_path": "10.5/多语言/ChatGPT 图像 2026年10月4日 18_25_51-2.png",
+          "bytes": 2138845,
+          "dimensions": [
+            1086,
+            1448
+          ],
+          "sha256": "652ab210f369e9ec7c8fed01bcec28d6adaf4652228a5c35b3042441ef3bd60b",
+          "git_blob": "324ad998a2b6d07b2e3cab48d08559674c63bd7b",
+          "existing_pilot": false
+        },
+        {
+          "file": "素材/多语言图库/M.003_指甲锉/03_jp.png",
+          "original_name": "ChatGPT 图像 2026年10月4日 18_25_52-3.png",
+          "source_relative_path": "10.5/多语言/ChatGPT 图像 2026年10月4日 18_25_52-3.png",
+          "bytes": 2146660,
+          "dimensions": [
+            1086,
+            1448
+          ],
+          "sha256": "40c5ee2469fb70fe0ab8111c71c3201d6638fa4ec0eb6a459dfbb1035ec3e670",
+          "git_blob": "187a5bdc68cbcbcfd826adf2df8e8628877f80ff",
+          "existing_pilot": false
+        },
+        {
+          "file": "素材/多语言图库/M.003_指甲锉/04_en.png",
+          "original_name": "ChatGPT 图像 2026年10月4日 18_25_53-4.png",
+          "source_relative_path": "10.5/多语言/ChatGPT 图像 2026年10月4日 18_25_53-4.png",
+          "bytes": 2143938,
+          "dimensions": [
+            1086,
+            1448
+          ],
+          "sha256": "a02864b27702b8f9f16c279cbc7357d23e1ae051babc6df9d81431e9e76f1cec",
+          "git_blob": "18c0061a8d16f63ca11439c8ecba7947a71b44f7",
+          "existing_pilot": false
+        },
+        {
+          "file": "素材/多语言图库/M.003_指甲锉/05_yue.png",
+          "original_name": "ChatGPT 图像 2026年10月4日 18_25_55-5.png",
+          "source_relative_path": "10.5/多语言/ChatGPT 图像 2026年10月4日 18_25_55-5.png",
+          "bytes": 2191071,
+          "dimensions": [
+            1086,
+            1448
+          ],
+          "sha256": "415c5dd5d2cec5ed40d89b749e4f1279ec988c2587c9da3df2bd28f4a3f95e8d",
+          "git_blob": "d8dda8273566595a0d11fe60c77f9b5f0bf704b2",
+          "existing_pilot": false
+        },
+        {
+          "file": "素材/多语言图库/M.003_指甲锉/06_tail.png",
+          "original_name": "ChatGPT 图像 2026年10月4日 18_25_56-6.png",
+          "source_relative_path": "10.5/多语言/ChatGPT 图像 2026年10月4日 18_25_56-6.png",
+          "bytes": 1739838,
+          "dimensions": [
+            1086,
+            1448
+          ],
+          "sha256": "e23b498e927761842a311ed51c9c786851602a4d06e236427ab8c5d505a28878",
+          "git_blob": "4e099b504f6a2bfbf1adb834504ba52320697cce",
+          "existing_pilot": false
+        }
+      ]
+    },
+    {
+      "number": "M.004",
+      "source_date": "2026-10-06",
+      "topic": "帽内吸汗带",
+      "image_count": 6,
+      "available_material": "完整六图卡组",
+      "images": [
+        {
+          "file": "素材/多语言图库/M.004_帽内吸汗带/01_cover.png",
+          "original_name": "ChatGPT 图像 2026年10月5日 14_48_10-1.png",
+          "source_relative_path": "10.6/新建文件夹/ChatGPT 图像 2026年10月5日 14_48_10-1.png",
+          "bytes": 2320420,
+          "dimensions": [
+            1086,
+            1448
+          ],
+          "sha256": "1cc0837dfa165736c788bc452fd6384fe554524945fa6ead490c29eae49b5f24",
+          "git_blob": "52432638639740dc1fcd9cbe949744540434b7f8",
+          "existing_pilot": false
+        },
+        {
+          "file": "素材/多语言图库/M.004_帽内吸汗带/02_cn.png",
+          "original_name": "ChatGPT 图像 2026年10月5日 14_48_11-2.png",
+          "source_relative_path": "10.6/新建文件夹/ChatGPT 图像 2026年10月5日 14_48_11-2.png",
+          "bytes": 2452293,
+          "dimensions": [
+            1086,
+            1448
+          ],
+          "sha256": "c139e0a842e6b93c1d5f2e7561bb01fd2910225d0de0140eb44d91b4210150d8",
+          "git_blob": "d5c688f6031d5170d578df2a34c26f5b24100bd6",
+          "existing_pilot": false
+        },
+        {
+          "file": "素材/多语言图库/M.004_帽内吸汗带/03_jp.png",
+          "original_name": "ChatGPT 图像 2026年10月5日 14_48_12-3.png",
+          "source_relative_path": "10.6/新建文件夹/ChatGPT 图像 2026年10月5日 14_48_12-3.png",
+          "bytes": 2411043,
+          "dimensions": [
+            1086,
+            1448
+          ],
+          "sha256": "db11fadcf5d9f7346ef9d91a57f0e717eb2ebaefafc2a796116ab2b36f9b369f",
+          "git_blob": "0930da3fde818db772fbe830ae08c501d2d89fdf",
+          "existing_pilot": false
+        },
+        {
+          "file": "素材/多语言图库/M.004_帽内吸汗带/04_en.png",
+          "original_name": "ChatGPT 图像 2026年10月5日 14_48_13-4.png",
+          "source_relative_path": "10.6/新建文件夹/ChatGPT 图像 2026年10月5日 14_48_13-4.png",
+          "bytes": 2410116,
+          "dimensions": [
+            1086,
+            1448
+          ],
+          "sha256": "3e425b1a478fde22c42a2aa4aaadcf5c99cb37485357d02c65225496c9ed2d05",
+          "git_blob": "681eb684b68ca155269c9fcc2152f959e55f9692",
+          "existing_pilot": false
+        },
+        {
+          "file": "素材/多语言图库/M.004_帽内吸汗带/05_kr.png",
+          "original_name": "ChatGPT 图像 2026年10月5日 14_48_14-5.png",
+          "source_relative_path": "10.6/新建文件夹/ChatGPT 图像 2026年10月5日 14_48_14-5.png",
+          "bytes": 2388653,
+          "dimensions": [
+            1086,
+            1448
+          ],
+          "sha256": "aeef52e4e00990fdc87e46fb31f01b2e62c6d6a9546caaa37a124480274d8bbe",
+          "git_blob": "44aeb1477ad6bd982a2f4a8672a7a7a6621e2bb2",
+          "existing_pilot": false
+        },
+        {
+          "file": "素材/多语言图库/M.004_帽内吸汗带/06_tail.png",
+          "original_name": "ChatGPT 图像 2026年10月5日 14_48_15-6.png",
+          "source_relative_path": "10.6/新建文件夹/ChatGPT 图像 2026年10月5日 14_48_15-6.png",
+          "bytes": 2164575,
+          "dimensions": [
+            1086,
+            1448
+          ],
+          "sha256": "d687806c5faaca19d2a345209ef7abf3d61231219eb2db842652c98afdfa4fe6",
+          "git_blob": "9e863de948cd884c257d548b667ea162b80c7a2e",
+          "existing_pilot": false
+        }
+      ]
+    },
+    {
+      "number": "M.005",
+      "source_date": "2026-10-07",
+      "topic": "杯盖排气孔",
+      "image_count": 6,
+      "available_material": "完整六图卡组",
+      "images": [
+        {
+          "file": "素材/多语言图库/M.005_杯盖排气孔/01_cover.png",
+          "original_name": "ChatGPT 图像 2026年10月6日 11_14_56-1.png",
+          "source_relative_path": "10.7/新建文件夹/ChatGPT 图像 2026年10月6日 11_14_56-1.png",
+          "bytes": 1994788,
+          "dimensions": [
+            1086,
+            1448
+          ],
+          "sha256": "4e5da157119e07cffbf5cde5009b7db1da35a48a600360c1bffa356d793ee23b",
+          "git_blob": "52d70f681b5a043f2861ed153fc373fd92c25296",
+          "existing_pilot": false
+        },
+        {
+          "file": "素材/多语言图库/M.005_杯盖排气孔/02_cn.png",
+          "original_name": "ChatGPT 图像 2026年10月6日 11_14_57-2.png",
+          "source_relative_path": "10.7/新建文件夹/ChatGPT 图像 2026年10月6日 11_14_57-2.png",
+          "bytes": 2040054,
+          "dimensions": [
+            1086,
+            1448
+          ],
+          "sha256": "696c5c085bc02394f170e05a0162ff8de03fd1b739bdbb8c63d3c6e5263e96bf",
+          "git_blob": "ae8a76090722505c505ae28e88c7c7b55454f315",
+          "existing_pilot": false
+        },
+        {
+          "file": "素材/多语言图库/M.005_杯盖排气孔/03_jp.png",
+          "original_name": "ChatGPT 图像 2026年10月6日 11_14_58-3.png",
+          "source_relative_path": "10.7/新建文件夹/ChatGPT 图像 2026年10月6日 11_14_58-3.png",
+          "bytes": 2150724,
+          "dimensions": [
+            1086,
+            1448
+          ],
+          "sha256": "85ec6fe79ff27d91f8e91450065c9439b92bf4cb3c76accc1d50d9d677b6a001",
+          "git_blob": "da620abb5ad9fc0c24a6626b34255f3abe507ea7",
+          "existing_pilot": false
+        },
+        {
+          "file": "素材/多语言图库/M.005_杯盖排气孔/04_en.png",
+          "original_name": "ChatGPT 图像 2026年10月6日 11_15_00-4.png",
+          "source_relative_path": "10.7/新建文件夹/ChatGPT 图像 2026年10月6日 11_15_00-4.png",
+          "bytes": 2124992,
+          "dimensions": [
+            1086,
+            1448
+          ],
+          "sha256": "5f0c5a92ad1959d6ef24827fb71e8a2c9913c24cfb657b7a3ddc81242efae39c",
+          "git_blob": "456fd39947cdcee1e25b041d6b65295dd1ba4cca",
+          "existing_pilot": false
+        },
+        {
+          "file": "素材/多语言图库/M.005_杯盖排气孔/05_de.png",
+          "original_name": "ChatGPT 图像 2026年10月6日 11_15_01-5.png",
+          "source_relative_path": "10.7/新建文件夹/ChatGPT 图像 2026年10月6日 11_15_01-5.png",
+          "bytes": 2148243,
+          "dimensions": [
+            1086,
+            1448
+          ],
+          "sha256": "27afa9291182d0d12e2bfbd69cf0793804934e0d29c07b3dd175fd1e75a44e3f",
+          "git_blob": "5571d95dcf481706a81ec47e44e33c0fb2a550c3",
+          "existing_pilot": false
+        },
+        {
+          "file": "素材/多语言图库/M.005_杯盖排气孔/06_tail.png",
+          "original_name": "ChatGPT 图像 2026年10月6日 11_15_02-6.png",
+          "source_relative_path": "10.7/新建文件夹/ChatGPT 图像 2026年10月6日 11_15_02-6.png",
+          "bytes": 1838138,
+          "dimensions": [
+            1086,
+            1448
+          ],
+          "sha256": "d598e86f1b0dd23e3f81410370e7f98ac3e4eb38c1fda2d4682d4ed15f4cea51",
+          "git_blob": "ee1953936089086002aa19119b7446d18edbdca6",
+          "existing_pilot": false
+        }
+      ]
+    },
+    {
+      "number": "M.006",
+      "source_date": "2026-10-08",
+      "topic": "咖啡杯套",
+      "image_count": 6,
+      "available_material": "完整六图卡组",
+      "images": [
+        {
+          "file": "素材/原始图卡/01.png",
+          "original_name": "ChatGPT 图像 2026年10月7日 10_43_22-1.png",
+          "source_relative_path": "10.8/新建文件夹/ChatGPT 图像 2026年10月7日 10_43_22-1.png",
+          "bytes": 1967871,
+          "dimensions": [
+            1086,
+            1448
+          ],
+          "sha256": "2cea69be6778cf3585983315e8132706ccb2eb778841016a68adca5061ab636d",
+          "git_blob": "ec22147bdb6535ded7b247ccbaea2e790a19f9b9",
+          "existing_pilot": true
+        },
+        {
+          "file": "素材/原始图卡/02.png",
+          "original_name": "ChatGPT 图像 2026年10月7日 10_43_24-2.png",
+          "source_relative_path": "10.8/新建文件夹/ChatGPT 图像 2026年10月7日 10_43_24-2.png",
+          "bytes": 2053838,
+          "dimensions": [
+            1086,
+            1448
+          ],
+          "sha256": "4481e10673e6f7730a7738f3f5cee77e0398e44a184505ef125db3f74deb41a4",
+          "git_blob": "09e0456a5543622c38e817e2a4bc10081c6d4ecb",
+          "existing_pilot": true
+        },
+        {
+          "file": "素材/原始图卡/03.png",
+          "original_name": "ChatGPT 图像 2026年10月7日 10_43_25-3.png",
+          "source_relative_path": "10.8/新建文件夹/ChatGPT 图像 2026年10月7日 10_43_25-3.png",
+          "bytes": 2008998,
+          "dimensions": [
+            1086,
+            1448
+          ],
+          "sha256": "bfa73b4a94436b140aa93a2564b6a88d9d709371551934473d8b69cdb7fcc89b",
+          "git_blob": "86687a0ceebf18171efae2f9d28f19ba6bb8208e",
+          "existing_pilot": true
+        },
+        {
+          "file": "素材/原始图卡/04.png",
+          "original_name": "ChatGPT 图像 2026年10月7日 10_43_26-4.png",
+          "source_relative_path": "10.8/新建文件夹/ChatGPT 图像 2026年10月7日 10_43_26-4.png",
+          "bytes": 1894728,
+          "dimensions": [
+            1086,
+            1448
+          ],
+          "sha256": "ad92cad97b5cac22ec683bc899a07296a147e5b762d67c407f188891be25c7d1",
+          "git_blob": "29bcda318f2e8f0bb06d687dc3c749cd2df3c703",
+          "existing_pilot": true
+        },
+        {
+          "file": "素材/原始图卡/05.png",
+          "original_name": "ChatGPT 图像 2026年10月7日 10_43_30-5.png",
+          "source_relative_path": "10.8/新建文件夹/ChatGPT 图像 2026年10月7日 10_43_30-5.png",
+          "bytes": 2079718,
+          "dimensions": [
+            1086,
+            1448
+          ],
+          "sha256": "dbda094ed4938bda248bcd344860cb76cfbf4737dd7380ef2ecc1af95224e0f5",
+          "git_blob": "fac4b432094e729e9afa36e560f09a9f3735acfa",
+          "existing_pilot": true
+        },
+        {
+          "file": "素材/原始图卡/06.png",
+          "original_name": "ChatGPT 图像 2026年10月7日 10_43_31-6.png",
+          "source_relative_path": "10.8/新建文件夹/ChatGPT 图像 2026年10月7日 10_43_31-6.png",
+          "bytes": 1867273,
+          "dimensions": [
+            1086,
+            1448
+          ],
+          "sha256": "367f0baff381dc042505e24cc06944a5a43c1b0325340134b836e353fc587dcc",
+          "git_blob": "aaa3aae997b0e8ea84e169a3f807ebb00b2c75ef",
+          "existing_pilot": true
+        }
+      ]
+    },
+    {
+      "number": "M.007",
+      "source_date": "2026-10-09",
+      "topic": "保鲜膜盒防脱卡扣",
+      "image_count": 6,
+      "available_material": "完整六图卡组",
+      "images": [
+        {
+          "file": "素材/多语言图库/M.007_保鲜膜盒防脱卡扣/01_cover.png",
+          "original_name": "ChatGPT 图像 2026年10月7日 13_57_21-1.png",
+          "source_relative_path": "10.9/新建文件夹/ChatGPT 图像 2026年10月7日 13_57_21-1.png",
+          "bytes": 2012726,
+          "dimensions": [
+            1086,
+            1448
+          ],
+          "sha256": "fd4ba33c27aa5a65b91ca3b6d5c60084ba1dceff43df7a8b3828a7112ae5d181",
+          "git_blob": "3584deac5d0daa2f71941117061e825b10884501",
+          "existing_pilot": false
+        },
+        {
+          "file": "素材/多语言图库/M.007_保鲜膜盒防脱卡扣/02_cn.png",
+          "original_name": "ChatGPT 图像 2026年10月7日 13_57_22-2.png",
+          "source_relative_path": "10.9/新建文件夹/ChatGPT 图像 2026年10月7日 13_57_22-2.png",
+          "bytes": 2173429,
+          "dimensions": [
+            1086,
+            1448
+          ],
+          "sha256": "b112baef80d61d32bd7edaf0bf0999e3f00e61550d110283519e2251458bf69b",
+          "git_blob": "8200d9068cd646c9b277a34a384691a67acc5b2a",
+          "existing_pilot": false
+        },
+        {
+          "file": "素材/多语言图库/M.007_保鲜膜盒防脱卡扣/03_jp.png",
+          "original_name": "ChatGPT 图像 2026年10月7日 13_57_23-3.png",
+          "source_relative_path": "10.9/新建文件夹/ChatGPT 图像 2026年10月7日 13_57_23-3.png",
+          "bytes": 2264055,
+          "dimensions": [
+            1086,
+            1448
+          ],
+          "sha256": "8ca437baaac2fb0eaaa463f21f1f2c79ea6f2ee2c59b4bfe2dd674be28e8729f",
+          "git_blob": "d4d8c84b5400e83db40e2b20fedcfab484b5ff37",
+          "existing_pilot": false
+        },
+        {
+          "file": "素材/多语言图库/M.007_保鲜膜盒防脱卡扣/04_en.png",
+          "original_name": "ChatGPT 图像 2026年10月7日 13_57_24-4.png",
+          "source_relative_path": "10.9/新建文件夹/ChatGPT 图像 2026年10月7日 13_57_24-4.png",
+          "bytes": 2179398,
+          "dimensions": [
+            1086,
+            1448
+          ],
+          "sha256": "2f13a570b9ecda240ab196981b2f4bc081de30a585815da160585c0e30d876fb",
+          "git_blob": "39e623fbc01c3448378342e9a8e1eeabe50fbe29",
+          "existing_pilot": false
+        },
+        {
+          "file": "素材/多语言图库/M.007_保鲜膜盒防脱卡扣/05_yue.png",
+          "original_name": "ChatGPT 图像 2026年10月7日 13_57_27-5.png",
+          "source_relative_path": "10.9/新建文件夹/ChatGPT 图像 2026年10月7日 13_57_27-5.png",
+          "bytes": 2286194,
+          "dimensions": [
+            1086,
+            1448
+          ],
+          "sha256": "9d82a3d858cfcbf76979d72eb6f074dc59c899a4b0a5338de5daab882aab3bea",
+          "git_blob": "2e193f7e29c2f776297db41292840d6031b0ce33",
+          "existing_pilot": false
+        },
+        {
+          "file": "素材/多语言图库/M.007_保鲜膜盒防脱卡扣/06_tail.png",
+          "original_name": "ChatGPT 图像 2026年10月7日 13_57_28-6.png",
+          "source_relative_path": "10.9/新建文件夹/ChatGPT 图像 2026年10月7日 13_57_28-6.png",
+          "bytes": 2013321,
+          "dimensions": [
+            1086,
+            1448
+          ],
+          "sha256": "b1cb79ded5972e2f5f370e8b0121c014f99fd28e9633bf213d234b5139be10e6",
+          "git_blob": "aeb5651d86596ea69e8f258778aad7c45eccdabc",
+          "existing_pilot": false
+        }
+      ]
+    },
+    {
+      "number": "M.008",
+      "source_date": "2026-10-10",
+      "topic": "保鲜膜盒拇指按压槽",
+      "image_count": 6,
+      "available_material": "完整六图卡组",
+      "images": [
+        {
+          "file": "素材/多语言图库/M.008_保鲜膜盒拇指按压槽/01_cover.png",
+          "original_name": "ChatGPT 图像 2026年10月7日 14_21_35-1.png",
+          "source_relative_path": "10.10/新建文件夹/ChatGPT 图像 2026年10月7日 14_21_35-1.png",
+          "bytes": 2010298,
+          "dimensions": [
+            1086,
+            1448
+          ],
+          "sha256": "42ca581aa91dd28544d3d65d2d60a22731049b1436bc88097d8237982236e649",
+          "git_blob": "07ae715e22482628dd96a2c5b303f8deefc7533a",
+          "existing_pilot": false
+        },
+        {
+          "file": "素材/多语言图库/M.008_保鲜膜盒拇指按压槽/02_cn.png",
+          "original_name": "ChatGPT 图像 2026年10月7日 14_21_36-2.png",
+          "source_relative_path": "10.10/新建文件夹/ChatGPT 图像 2026年10月7日 14_21_36-2.png",
+          "bytes": 2140384,
+          "dimensions": [
+            1086,
+            1448
+          ],
+          "sha256": "a04fa1c5a833ca8ecc5e49ffc7fa1c49d3c09b6ac63acbdbae450f537bf475db",
+          "git_blob": "8b7f6b8571b2c8440c465d40190fe376b6fa3837",
+          "existing_pilot": false
+        },
+        {
+          "file": "素材/多语言图库/M.008_保鲜膜盒拇指按压槽/03_jp.png",
+          "original_name": "ChatGPT 图像 2026年10月7日 14_21_39-3.png",
+          "source_relative_path": "10.10/新建文件夹/ChatGPT 图像 2026年10月7日 14_21_39-3.png",
+          "bytes": 2149768,
+          "dimensions": [
+            1086,
+            1448
+          ],
+          "sha256": "71ab890b1ff872a52665d4a8977a7885be04945671340728d8d9d1197347dd8c",
+          "git_blob": "c8db520eb2f33f506583ea2b512bc944a436083d",
+          "existing_pilot": false
+        },
+        {
+          "file": "素材/多语言图库/M.008_保鲜膜盒拇指按压槽/04_en.png",
+          "original_name": "ChatGPT 图像 2026年10月7日 14_21_44-4.png",
+          "source_relative_path": "10.10/新建文件夹/ChatGPT 图像 2026年10月7日 14_21_44-4.png",
+          "bytes": 2183240,
+          "dimensions": [
+            1086,
+            1448
+          ],
+          "sha256": "7ab7930bf3a92a873760f1a4ec38eb92da53dcd8f19929ebb98ddd404b618837",
+          "git_blob": "540c67acd9bd8f03f48f48f8b742f2832f1a423a",
+          "existing_pilot": false
+        },
+        {
+          "file": "素材/多语言图库/M.008_保鲜膜盒拇指按压槽/05_yue.png",
+          "original_name": "ChatGPT 图像 2026年10月7日 14_21_45-5.png",
+          "source_relative_path": "10.10/新建文件夹/ChatGPT 图像 2026年10月7日 14_21_45-5.png",
+          "bytes": 2205097,
+          "dimensions": [
+            1086,
+            1448
+          ],
+          "sha256": "92fd9bdd55809c0a131c54028075fdc1a96f0b81ead3529d91b884fffd26d58f",
+          "git_blob": "428a7c74977e1e8f126fdffed0f1188e47151a8b",
+          "existing_pilot": false
+        },
+        {
+          "file": "素材/多语言图库/M.008_保鲜膜盒拇指按压槽/06_tail.png",
+          "original_name": "ChatGPT 图像 2026年10月7日 14_21_46-6.png",
+          "source_relative_path": "10.10/新建文件夹/ChatGPT 图像 2026年10月7日 14_21_46-6.png",
+          "bytes": 1892444,
+          "dimensions": [
+            1086,
+            1448
+          ],
+          "sha256": "e655efa12e8880b85cf5f04698a01f018e321c4b70b61f74142a5c0c5cf1c8a6",
+          "git_blob": "c90af865da1bda1b32a1d1dedf5c986ad18e365e",
+          "existing_pilot": false
+        }
+      ]
+    },
+    {
+      "number": "M.009",
+      "source_date": "2026-10-11",
+      "topic": "圆珠笔防滑握套",
+      "image_count": 6,
+      "available_material": "完整六图卡组",
+      "images": [
+        {
+          "file": "素材/多语言图库/M.009_圆珠笔防滑握套/01_cover.png",
+          "original_name": "ChatGPT 图像 2026年10月8日 10_23_38-1.png",
+          "source_relative_path": "10.11/新建文件夹/ChatGPT 图像 2026年10月8日 10_23_38-1.png",
+          "bytes": 1912680,
+          "dimensions": [
+            1086,
+            1448
+          ],
+          "sha256": "1db89a17655276fc58e4c0c66ebf8b28f74cd93c2773b8e657653787c8f1a7e9",
+          "git_blob": "4b5bfe22221a4c87342ea5c932537056fbf6fc19",
+          "existing_pilot": false
+        },
+        {
+          "file": "素材/多语言图库/M.009_圆珠笔防滑握套/02_cn.png",
+          "original_name": "ChatGPT 图像 2026年10月8日 10_23_45-5.png",
+          "source_relative_path": "10.11/新建文件夹/ChatGPT 图像 2026年10月8日 10_23_45-5.png",
+          "bytes": 2054180,
+          "dimensions": [
+            1086,
+            1448
+          ],
+          "sha256": "87a4fdd0615a092047d52ca137982e428e4de784813369099142614360102a3b",
+          "git_blob": "d73053ea8b07daa7fccb1af786c7664f68b2b0ec",
+          "existing_pilot": false
+        },
+        {
+          "file": "素材/多语言图库/M.009_圆珠笔防滑握套/03_jp.png",
+          "original_name": "ChatGPT 图像 2026年10月8日 10_23_42-3.png",
+          "source_relative_path": "10.11/新建文件夹/ChatGPT 图像 2026年10月8日 10_23_42-3.png",
+          "bytes": 2068033,
+          "dimensions": [
+            1086,
+            1448
+          ],
+          "sha256": "68e5329a89ad6d1cfed226f3927486f373ed551e9b8cba31009f879b3bdb86fc",
+          "git_blob": "4b2de86d307b52c80a8660d58768ad78b94d4b5d",
+          "existing_pilot": false
+        },
+        {
+          "file": "素材/多语言图库/M.009_圆珠笔防滑握套/04_en.png",
+          "original_name": "ChatGPT 图像 2026年10月8日 10_23_46-6.png",
+          "source_relative_path": "10.11/新建文件夹/ChatGPT 图像 2026年10月8日 10_23_46-6.png",
+          "bytes": 2086960,
+          "dimensions": [
+            1086,
+            1448
+          ],
+          "sha256": "f4ea08739b1e185cc92f88f608376a4142c154241c85b53de0b390015089a58a",
+          "git_blob": "d87419cfaa2d809b6da8d3365c1822cd01fb16a4",
+          "existing_pilot": false
+        },
+        {
+          "file": "素材/多语言图库/M.009_圆珠笔防滑握套/05_yue.png",
+          "original_name": "ChatGPT 图像 2026年10月8日 10_23_39-2.png",
+          "source_relative_path": "10.11/新建文件夹/ChatGPT 图像 2026年10月8日 10_23_39-2.png",
+          "bytes": 2041314,
+          "dimensions": [
+            1086,
+            1448
+          ],
+          "sha256": "15b4a01ad6c3216ca5a2e7d9f8e941fec57bd6f99209adaf00061f57e89362ef",
+          "git_blob": "5465acb19644972e1cef9230989163b687553f6d",
+          "existing_pilot": false
+        },
+        {
+          "file": "素材/多语言图库/M.009_圆珠笔防滑握套/06_tail.png",
+          "original_name": "ChatGPT 图像 2026年10月8日 10_23_43-4.png",
+          "source_relative_path": "10.11/新建文件夹/ChatGPT 图像 2026年10月8日 10_23_43-4.png",
+          "bytes": 1813843,
+          "dimensions": [
+            1086,
+            1448
+          ],
+          "sha256": "c66f41dfc986b14fb8aa1a078125abccc76c7107e279d1faac0e22133a00ac72",
+          "git_blob": "0571d259fee739319a39497f59840cc9ab0dc6a1",
+          "existing_pilot": false
+        }
+      ]
+    }
+  ],
+  "group_count": 9,
+  "image_count": 44,
+  "newly_uploaded_images": 38,
+  "reused_existing_images": 6,
+  "scope": "Only verified multilingual series image assets. No single-language series, old video code, operational reports or private credentials.",
+  "original_image_bytes_unchanged": true
+}
