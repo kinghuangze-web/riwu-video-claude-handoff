@@ -1,0 +1,10 @@
+# 依赖和生成物（可随时重新生成，不进仓库）
+node_modules/
+build/
+out/
+__pycache__/
+*.pyc
+.DS_Store
+# 成片太大，放到 GitHub Releases
+*.mp4
+*.zip

@@ -1,0 +1,253 @@
+{
+ "id": "M.004",
+ "object": "帽内吸汗带",
+ "series": {
+  "name": "日物图鉴",
+  "tag": "MULTI LANGUAGE INDEX"
+ },
+ "anchor": "日",
+ "cards": [
+  {
+   "file": "01_cover.png",
+   "role": "hook",
+   "photo": [
+    0,
+    0,
+    1000,
+    605
+   ],
+   "subject": [
+    300,
+    60,
+    950,
+    520
+   ],
+   "question": [
+    195,
+    700,
+    825,
+    875
+   ]
+  },
+  {
+   "file": "02_cn.png",
+   "role": "lang",
+   "lang": "中文",
+   "short": "中",
+   "photo": [
+    0,
+    0,
+    1000,
+    518
+   ],
+   "subject": [
+    250,
+    40,
+    1000,
+    500
+   ],
+   "focus": [
+    {
+     "kind": "naming",
+     "box": [
+      125,
+      692,
+      470,
+      795
+     ]
+    }
+   ],
+   "meaning": "帽子里 + 吸汗 + 带",
+   "word": "帽内吸汗带",
+   "reading": "mào nèi xī hàn dài",
+   "parts": [
+    {
+     "t": "帽内",
+     "m": "帽子里"
+    },
+    {
+     "t": "吸汗",
+     "m": "吸汗",
+     "link": "汗"
+    },
+    {
+     "t": "带",
+     "m": "带",
+     "link": "带"
+    }
+   ]
+  },
+  {
+   "file": "03_jp.png",
+   "role": "lang",
+   "lang": "日语",
+   "short": "日",
+   "photo": [
+    0,
+    0,
+    1000,
+    485
+   ],
+   "subject": [
+    250,
+    40,
+    1000,
+    470
+   ],
+   "focus": [
+    {
+     "kind": "naming",
+     "box": [
+      40,
+      672,
+      480,
+      755
+     ]
+    },
+    {
+     "kind": "example",
+     "box": [
+      515,
+      703,
+      965,
+      758
+     ],
+     "label": true
+    }
+   ],
+   "word": "スベリ",
+   "reading": "すべり · suberi",
+   "hide": [
+    [
+     184,
+     734,
+     500,
+     758
+    ]
+   ]
+  },
+  {
+   "file": "04_en.png",
+   "role": "lang",
+   "lang": "英语",
+   "short": "英",
+   "photo": [
+    0,
+    0,
+    1000,
+    524
+   ],
+   "subject": [
+    250,
+    40,
+    1000,
+    500
+   ],
+   "focus": [
+    {
+     "kind": "naming",
+     "box": [
+      45,
+      730,
+      420,
+      800
+     ],
+     "label": true
+    }
+   ],
+   "meaning": "汗 + 带",
+   "word": "sweatband",
+   "reading": "swet-band（/ˈswet.bænd/）",
+   "parts": [
+    {
+     "t": "sweat",
+     "m": "汗",
+     "link": "汗"
+    },
+    {
+     "t": "band",
+     "m": "带",
+     "link": "带"
+    }
+   ]
+  },
+  {
+   "file": "05_kr.png",
+   "role": "lang",
+   "lang": "韩语",
+   "short": "韩",
+   "photo": [
+    0,
+    0,
+    1000,
+    495
+   ],
+   "subject": [
+    250,
+    40,
+    1000,
+    480
+   ],
+   "focus": [
+    {
+     "kind": "naming",
+     "box": [
+      40,
+      703,
+      500,
+      754
+     ],
+     "label": true
+    }
+   ],
+   "meaning": "帽子 + 接汗的",
+   "word": "모자 땀받이",
+   "reading": "[땀바지] · ttam-ba-ji",
+   "parts": [
+    {
+     "t": "모자",
+     "m": "帽子"
+    },
+    {
+     "t": "땀받이",
+     "m": "接汗的",
+     "link": "汗"
+    }
+   ],
+   "hide": [
+    [
+     346,
+     733,
+     520,
+     756
+    ]
+   ]
+  },
+  {
+   "file": "06_tail.png",
+   "role": "outro",
+   "photo": [
+    0,
+    0,
+    1000,
+    290
+   ],
+   "subject": [
+    300,
+    20,
+    1000,
+    280
+   ]
+  }
+ ],
+ "insight": "中、英、韩：名字里都有「汗」",
+ "insight_langs": [
+  "中",
+  "英",
+  "韩"
+ ],
+ "bridge": "中",
+ "insight_links": [
+  "汗"
+ ]
+}

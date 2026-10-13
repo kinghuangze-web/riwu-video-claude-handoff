@@ -1,0 +1,103 @@
+{
+ "fps": 30,
+ "width": 1080,
+ "height": 1920,
+ "bpm": 100,
+ "ink_threshold": 140,
+ "read_units_per_sec": 10,
+ "name_hold": [
+  2.4,
+  3.0
+ ],
+ "focus_hold": [
+  3.0,
+  5.4
+ ],
+ "kind_label": {
+  "def": "释义",
+  "example": "日常例句",
+  "why": "为什么这么设计",
+  "usage": "生活里的应用",
+  "naming": "为什么这么叫",
+  "extra": "延伸"
+ },
+ "layout": {
+  "panel_inner_w": 832,
+  "panel_inner_h": 980,
+  "panel_pad": 34,
+  "target_text_px": 50,
+  "zoom_min": 1.0,
+  "zoom_max": 3.0,
+  "recap_top": 420,
+  "transition": 8,
+  "panel_x": 64,
+  "panel_w": 900,
+  "sub_text_px": 48,
+  "photo_band": 760,
+  "hero_x": 64,
+  "hero_w": 952,
+  "hero_h": 200,
+  "meaning_h": 78,
+  "content_bottom": 1580,
+  "shift_max": 430,
+  "hook_bottom": 1560,
+  "hook_q_h": 440,
+  "recap_bottom": 1450,
+  "drop_max": 340,
+  "drop_keep": 90,
+  "word_max": 170,
+  "word_drop_max": 560,
+  "word_bottom": 1500
+ },
+ "colors": {
+  "paper": "#F4EEE3",
+  "paper2": "#EAE1D2",
+  "ink": "#2A1C12",
+  "sub": "#7A6656",
+  "accent": "#E7C690",
+  "accent2": "#C9954B",
+  "sun": "#E9C68C",
+  "dim": "rgba(28,20,14,0.62)",
+  "card": "#FBF7F0"
+ },
+ "fonts": {
+  "serif": "Noto Serif CJK SC",
+  "latin": "Noto Serif CJK SC"
+ },
+ "text": {
+  "guess": "先猜一下",
+  "recap": "同一个东西 · {n} 种叫法",
+  "meaning": "字面",
+  "outro": [
+   "不回看，",
+   "你记住了吗？"
+  ],
+  "comment": "评论区打出来",
+  "tagline": "每天都在见的小东西，也值得认真记住它的名字。",
+  "answer": "重点记",
+  "bridge": "你熟悉的叫法",
+  "recall": "还记得它叫什么吗？",
+  "link": "又见面了"
+ },
+ "name_hold_anchor": [
+  3.0,
+  3.6
+ ],
+ "focus_hold_other": [
+  3.0,
+  5.4
+ ],
+ "name_hold_bridge": [
+  2.4,
+  2.4
+ ],
+ "recall_beats": 4,
+ "recap_beats": 6,
+ "outro_beats": 7,
+ "lang_font": {
+  "日": "JP",
+  "韩": "KR",
+  "粤": "HK",
+  "繁": "TC"
+ }
+}

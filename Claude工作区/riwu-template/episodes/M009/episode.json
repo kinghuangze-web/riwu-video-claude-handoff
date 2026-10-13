@@ -1,0 +1,37 @@
+{
+ "id": "M.009",
+ "object": "笔的防滑握套",
+ "series": {"name": "日物图鉴", "tag": "MULTI LANGUAGE INDEX"},
+ "bridge": "中",
+ "anchor": "日",
+ "cards": [
+  {"file": "01_cover.png", "role": "hook", "photo": [0, 75, 1000, 652], "subject": [269, 347, 462, 488], "question": [30, 688, 968, 845]},
+  {"file": "02_cn.png", "role": "lang", "lang": "中文", "short": "中",
+   "photo": [0, 75, 1000, 424], "subject": [273, 260, 467, 400],
+   "word": "防滑握套", "reading": "fáng huá wò tào",
+   "parts": [{"t": "防滑", "m": "", "link": "滑"}, {"t": "握套", "m": "", "link": "握"}],
+   "focus": []},
+  {"file": "03_jp.png", "role": "lang", "lang": "日语", "short": "日",
+   "photo": [0, 75, 1000, 464], "subject": [280, 285, 467, 425],
+   "word": "ラバーグリップ", "reading": "らばーぐりっぷ · rabā gurippu", "meaning": "橡胶握持部",
+   "parts": [{"t": "ラバー", "m": "橡胶", "link": "胶"}, {"t": "グリップ", "m": "握持", "link": "握"}],
+   "focus": [
+    {"kind": "naming", "box": [348, 752, 962, 777], "label": true},
+    {"kind": "example", "box": [345, 651, 850, 695], "label": true}
+   ]},
+  {"file": "04_en.png", "role": "lang", "lang": "英语", "short": "英",
+   "photo": [0, 75, 1000, 448], "subject": [280, 250, 480, 390],
+   "word": "rubber grip", "reading": "/ˈrʌbər grip/",
+   "parts": [{"t": "rubber", "m": "橡胶", "link": "胶"}, {"t": "grip", "m": "握持", "link": "握"}],
+   "focus": [{"kind": "example", "box": [48, 655, 478, 704], "label": true}]},
+  {"file": "05_yue.png", "role": "lang", "lang": "粤语", "short": "粤",
+   "photo": [0, 75, 1000, 552], "subject": [267, 345, 467, 488],
+   "word": "防滑膠套", "reading": "fong4 waat6 gaau1 tou3", "meaning": "防滑胶套",
+   "parts": [{"t": "防滑", "m": "", "link": "滑"}, {"t": "膠套", "m": "胶套", "link": "胶"}],
+   "focus": [{"kind": "example", "box": [42, 712, 352, 808], "label": true}]},
+  {"file": "06_tail.png", "role": "outro", "photo": [0, 75, 1000, 620], "subject": [269, 342, 462, 483]}
+ ],
+ "insight": "日、英：都叫它「橡胶」+「握」",
+ "insight_langs": ["日", "英"],
+ "insight_links": ["胶", "握"]
+}

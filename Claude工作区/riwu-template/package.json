@@ -1,0 +1,18 @@
+{
+  "name": "riwu-template",
+  "private": true,
+  "version": "0.4.1",
+  "description": "日物图鉴 · 多语言物件讲解短视频模板（Remotion）",
+  "scripts": {
+    "render": "./render.sh",
+    "studio": "remotion studio src/index.ts"
+  },
+  "dependencies": {
+    "remotion": "4.0.454",
+    "@remotion/cli": "4.0.454",
+    "@remotion/renderer": "4.0.454",
+    "@remotion/bundler": "4.0.454",
+    "react": "19.3.0",
+    "react-dom": "19.3.0"
+  }
+}

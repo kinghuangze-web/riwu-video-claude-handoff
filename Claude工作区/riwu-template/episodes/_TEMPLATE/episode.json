@@ -1,0 +1,32 @@
+{
+ "id": "M.007",
+ "object": "物件中文名",
+ "series": {"name": "日物图鉴", "tag": "MULTI LANGUAGE INDEX"},
+ "bridge": "中",
+ "anchor": "日",
+ "cards": [
+  {"file": "01.png", "role": "hook", "photo": [0, 0, 1000, 610], "subject": [380, 210, 830, 480], "question": [37, 700, 967, 890]},
+  {"file": "02.png", "role": "lang", "lang": "中文", "short": "中",
+   "photo": [0, 125, 1000, 487], "subject": [430, 190, 800, 410],
+   "word": "咖啡杯套", "reading": "kā fēi bēi tào", "meaning": "杯子的套",
+   "focus": []},
+  {"file": "03.png", "role": "lang", "lang": "日语", "short": "日",
+   "photo": [0, 125, 1000, 432], "subject": [420, 150, 800, 350],
+   "word": "カップスリーブ", "reading": "かっぷすりーぶ · kappu suriibu", "meaning": "杯子的袖子",
+   "parts": [{"t": "カップ", "m": "杯子", "link": "杯"}, {"t": "スリーブ", "m": "袖子", "link": "袖"}],
+   "focus": [
+    {"kind": "naming", "box": [40, 780, 440, 801], "label": true},
+    {"kind": "example", "box": [529, 728, 985, 798], "label": true, "hold": 5.4, "note": "≤26 字的一句提示（可省）"}
+   ]},
+  {"file": "04.png", "role": "lang", "lang": "英语", "short": "英",
+   "photo": [0, 125, 1000, 449], "subject": [382, 152, 769, 366],
+   "word": "coffee cup sleeve", "reading": "/ˈkɔːfi kʌp sliːv/", "meaning": "咖啡杯的袖子",
+   "parts": [{"t": "coffee", "m": "咖啡", "link": "咖啡"}, {"t": "cup", "m": "杯", "link": "杯"}, {"t": "sleeve", "m": "袖子", "link": "袖"}],
+   "focus": [{"kind": "naming", "box": [200, 632, 1000, 668], "label": true, "hide": [[900, 640, 1000, 668]]}]},
+  {"file": "06.png", "role": "outro", "photo": [0, 0, 1000, 615], "subject": [390, 218, 843, 483]}
+ ],
+ "insight": "日、英：都把它叫作「袖子」",
+ "insight_langs": ["日", "英"],
+ "insight_links": ["袖"],
+ "recall": true
+}

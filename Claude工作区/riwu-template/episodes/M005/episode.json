@@ -1,0 +1,258 @@
+{
+ "id": "M.005",
+ "object": "杯盖排气孔",
+ "series": {
+  "name": "日物图鉴",
+  "tag": "MULTI LANGUAGE INDEX"
+ },
+ "anchor": "日",
+ "cards": [
+  {
+   "file": "01_cover.png",
+   "role": "hook",
+   "photo": [
+    0,
+    90,
+    1000,
+    658
+   ],
+   "subject": [
+    230,
+    110,
+    560,
+    300
+   ],
+   "question": [
+    60,
+    690,
+    600,
+    905
+   ]
+  },
+  {
+   "file": "02_cn.png",
+   "role": "lang",
+   "lang": "中文",
+   "short": "中",
+   "photo": [
+    0,
+    90,
+    1000,
+    535
+   ],
+   "subject": [
+    163,
+    76,
+    543,
+    296
+   ],
+   "focus": [
+    {
+     "kind": "why",
+     "box": [
+      125,
+      818,
+      530,
+      945
+     ]
+    }
+   ],
+   "meaning": "排气的孔",
+   "word": "排气孔",
+   "reading": "pái qì kǒng",
+   "parts": [
+    {
+     "t": "排气",
+     "m": "排气",
+     "link": "气"
+    },
+    {
+     "t": "孔",
+     "m": "孔",
+     "link": "孔"
+    }
+   ]
+  },
+  {
+   "file": "03_jp.png",
+   "role": "lang",
+   "lang": "日语",
+   "short": "日",
+   "photo": [
+    0,
+    90,
+    1000,
+    468
+   ],
+   "subject": [
+    176,
+    53,
+    556,
+    273
+   ],
+   "focus": [
+    {
+     "kind": "naming",
+     "box": [
+      50,
+      688,
+      490,
+      763
+     ]
+    },
+    {
+     "kind": "example",
+     "box": [
+      525,
+      717,
+      960,
+      776
+     ],
+     "label": true
+    }
+   ],
+   "meaning": "空气 + 穴",
+   "word": "空気穴",
+   "reading": "くうきあな · kūkiana",
+   "parts": [
+    {
+     "t": "空気",
+     "m": "空气",
+     "link": "气"
+    },
+    {
+     "t": "穴",
+     "m": "穴",
+     "link": "孔"
+    }
+   ]
+  },
+  {
+   "file": "04_en.png",
+   "role": "lang",
+   "lang": "英语",
+   "short": "英",
+   "photo": [
+    0,
+    90,
+    1000,
+    463
+   ],
+   "subject": [
+    163,
+    71,
+    543,
+    291
+   ],
+   "focus": [
+    {
+     "kind": "naming",
+     "box": [
+      75,
+      660,
+      490,
+      706
+     ],
+     "label": true
+    }
+   ],
+   "meaning": "空气 + 通风口 + 孔",
+   "word": "air vent hole",
+   "parts": [
+    {
+     "t": "air",
+     "m": "空气",
+     "link": "气"
+    },
+    {
+     "t": "vent",
+     "m": "通风口"
+    },
+    {
+     "t": "hole",
+     "m": "孔",
+     "link": "孔"
+    }
+   ],
+   "hide": [
+    [
+     349,
+     684,
+     490,
+     707
+    ]
+   ]
+  },
+  {
+   "file": "05_de.png",
+   "role": "lang",
+   "lang": "德语",
+   "short": "德",
+   "photo": [
+    0,
+    90,
+    1000,
+    469
+   ],
+   "subject": [
+    192,
+    50,
+    572,
+    270
+   ],
+   "focus": [
+    {
+     "kind": "naming",
+     "box": [
+      105,
+      685,
+      440,
+      748
+     ]
+    }
+   ],
+   "meaning": "排气 + 孔",
+   "word": "Entlüftungsloch",
+   "parts": [
+    {
+     "t": "Entlüftungs",
+     "m": "排气",
+     "link": "气"
+    },
+    {
+     "t": "loch",
+     "m": "孔",
+     "link": "孔"
+    }
+   ]
+  },
+  {
+   "file": "06_tail.png",
+   "role": "outro",
+   "photo": [
+    0,
+    0,
+    1000,
+    655
+   ],
+   "subject": [
+    185,
+    95,
+    905,
+    650
+   ]
+  }
+ ],
+ "insight": "四种语言都直说：「气」+「孔」",
+ "insight_langs": [
+  "日",
+  "中",
+  "英",
+  "德"
+ ],
+ "bridge": "中",
+ "insight_links": [
+  "气",
+  "孔"
+ ]
+}

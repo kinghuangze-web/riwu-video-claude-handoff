@@ -1,0 +1,247 @@
+{
+ "id": "M.006",
+ "object": "咖啡杯套",
+ "series": {
+  "name": "日物图鉴",
+  "tag": "MULTI LANGUAGE INDEX"
+ },
+ "cards": [
+  {
+   "file": "01.png",
+   "role": "hook",
+   "photo": [
+    0,
+    0,
+    1000,
+    611
+   ],
+   "subject": [
+    387,
+    214,
+    829,
+    483
+   ],
+   "question": [
+    37,
+    704,
+    967,
+    891
+   ]
+  },
+  {
+   "file": "02.png",
+   "role": "lang",
+   "lang": "中文",
+   "short": "中",
+   "photo": [
+    0,
+    125,
+    1000,
+    487
+   ],
+   "subject": [
+    433,
+    193,
+    801,
+    407
+   ],
+   "focus": [
+    {
+     "kind": "why",
+     "box": [
+      37,
+      839,
+      488,
+      960
+     ]
+    }
+   ],
+   "meaning": "杯子的套",
+   "word": "咖啡杯套",
+   "reading": "kā fēi bēi tào"
+  },
+  {
+   "file": "03.png",
+   "role": "lang",
+   "lang": "日语",
+   "short": "日",
+   "photo": [
+    0,
+    125,
+    1000,
+    432
+   ],
+   "subject": [
+    419,
+    148,
+    806,
+    349
+   ],
+   "focus": [
+    {
+     "kind": "naming",
+     "box": [
+      40,
+      780,
+      440,
+      801
+     ],
+     "label": true
+    },
+    {
+     "kind": "example",
+     "box": [
+      529,
+      728,
+      985,
+      798
+     ],
+     "label": true,
+     "hold": 5.4,
+     "note": "例句里的「スリーブ」就是カップスリーブ的简称"
+    }
+   ],
+   "meaning": "杯子的袖子",
+   "word": "カップスリーブ",
+   "reading": "かっぷすりーぶ · kappu suriibu",
+   "parts": [
+    {
+     "t": "カップ",
+     "m": "杯子",
+     "link": "杯"
+    },
+    {
+     "t": "スリーブ",
+     "m": "袖子",
+     "link": "袖"
+    }
+   ]
+  },
+  {
+   "file": "04.png",
+   "role": "lang",
+   "lang": "英语",
+   "short": "英",
+   "photo": [
+    0,
+    125,
+    1000,
+    449
+   ],
+   "subject": [
+    382,
+    152,
+    769,
+    366
+   ],
+   "focus": [
+    {
+     "kind": "naming",
+     "box": [
+      200,
+      632,
+      1000,
+      668
+     ],
+     "label": true
+    }
+   ],
+   "meaning": "咖啡杯的袖子",
+   "word": "coffee cup sleeve",
+   "reading": "/ˈkɔːfi kʌp sliːv/",
+   "parts": [
+    {
+     "t": "coffee",
+     "m": "咖啡",
+     "link": "咖啡"
+    },
+    {
+     "t": "cup",
+     "m": "杯",
+     "link": "杯"
+    },
+    {
+     "t": "sleeve",
+     "m": "袖子",
+     "link": "袖"
+    }
+   ]
+  },
+  {
+   "file": "05.png",
+   "role": "lang",
+   "lang": "德语",
+   "short": "德",
+   "photo": [
+    0,
+    125,
+    1000,
+    470
+   ],
+   "subject": [
+    451,
+    166,
+    838,
+    380
+   ],
+   "focus": [
+    {
+     "kind": "example",
+     "box": [
+      41,
+      872,
+      497,
+      919
+     ],
+     "label": true
+    }
+   ],
+   "meaning": "咖啡的袖口",
+   "word": "die Kaffeemanschette",
+   "reading": "/ˈkafeːmanˌʃɛtə/",
+   "parts": [
+    {
+     "t": "die",
+     "m": ""
+    },
+    {
+     "t": "Kaffee",
+     "m": "咖啡",
+     "link": "咖啡"
+    },
+    {
+     "t": "manschette",
+     "m": "袖口",
+     "link": "袖"
+    }
+   ]
+  },
+  {
+   "file": "06.png",
+   "role": "outro",
+   "photo": [
+    0,
+    0,
+    1000,
+    615
+   ],
+   "subject": [
+    391,
+    218,
+    843,
+    483
+   ]
+  }
+ ],
+ "insight": "日、英、德：都把它叫作「袖子」",
+ "anchor": "日",
+ "insight_langs": [
+  "日",
+  "英",
+  "德"
+ ],
+ "bridge": "中",
+ "insight_links": [
+  "袖"
+ ]
+}
