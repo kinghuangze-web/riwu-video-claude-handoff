@@ -564,11 +564,11 @@ const BHook: React.FC<{s: any; plan: Plan; t: number}> = ({s, plan, t}) => {
 const BLang: React.FC<{s: any; plan: Plan; t: number}> = ({s, plan, t}) => {
   const C = plan.style.colors, TX = plan.style.text, L = s.book, Y = L.y, w = s.word;
   // 当前这一步的版面（在相邻两步之间平滑过渡）
-  let lay: any = {...L.lays[0], plateK: L.lays[0].plate ? 1 : 0, clips: L.lays[0].clips.map((c: any) => ({...c, u: c.fold ? 1 : 0}))};
+  let lay: any = {...L.lays[0], ex: L.lays[0].ex || 0, plateK: L.lays[0].plate ? 1 : 0, clips: L.lays[0].clips.map((c: any) => ({...c, u: c.fold ? 1 : 0}))};
   s.steps.forEach((st: any, i: number) => {
     if (i === 0 || t < st.start - 3) return;
     const a = L.lays[i - 1], b = L.lays[i], q = ramp(t, st.start - 3, st.start + 9, inOut);
-    lay = {up: lerp(a.up, b.up, q), plateK: lerp(a.plate ? 1 : 0, b.plate ? 1 : 0, q),
+    lay = {up: lerp(a.up, b.up, q), ex: lerp(a.ex || 0, b.ex || 0, q), plateK: lerp(a.plate ? 1 : 0, b.plate ? 1 : 0, q),
       clips: b.clips.map((c: any, j: number) => ({y: lerp(a.clips[j].y, c.y, q), k: lerp(a.clips[j].k, c.k, q), u: lerp(a.clips[j].fold ? 1 : 0, c.fold ? 1 : 0, q)}))};
   });
   const o = -lay.up;
@@ -579,7 +579,7 @@ const BLang: React.FC<{s: any; plan: Plan; t: number}> = ({s, plan, t}) => {
   const g = ramp(t, 22, 34);
   const rc = s.steps.find((st: any) => st.kind === 'recall');
   const rk = rc ? t - rc.start : -1, inRc = rc && rk >= 0;
-  const covered = inRc && rk >= 8 && rk < rc.t_reveal + 2;  // 便利贴完全盖住时名字不渲染（不会从纸下透出来）
+  const covered = inRc && rk >= 8 && rk < rc.t_reveal;  // 便利贴完全盖住时名字不渲染（不会从纸下透出来）
   const pop = inRc && rk >= rc.t_reveal ? sp(rk - rc.t_reveal, {damping: 9, stiffness: 300}) : 1;
   const parts = L.etym.length ? w.parts : [];
   const z = 1.04 + 0.06 * ramp(t, 0, s.dur, (x) => x);
@@ -592,21 +592,21 @@ const BLang: React.FC<{s: any; plan: Plan; t: number}> = ({s, plan, t}) => {
       <div style={{position: 'absolute', left: 64, top: Y.head, height: 64, display: 'flex', alignItems: 'center', gap: 22, whiteSpace: 'nowrap', opacity: clamp(sp(t + 2) * 2)}}>
         <span style={{fontFamily: SERIF, fontWeight: 900, fontSize: 46, color: C.accent_text, letterSpacing: 2}}>No.{pad2(s.no)}</span>
         <span style={{background: A ? C.accent : C.ink, color: A ? C.ink : C.paper, fontFamily: SERIF, fontWeight: 900, fontSize: 40, padding: '4px 24px', borderRadius: 32, letterSpacing: 4}}>{s.lang}</span>
-        {(A || Bg) && !inRc && <span style={{border: `3px solid ${A ? C.ink : C.sub}`, color: A ? C.ink : C.sub, fontFamily: SERIF, fontWeight: 900, fontSize: 32, padding: '2px 18px', borderRadius: 30, letterSpacing: 3, transform: 'rotate(-2deg)'}}>{A ? TX.answer : TX.bridge}</span>}
+        {(A || Bg) && !(inRc && rk < rc.t_reveal + 6) && <span style={{border: `3px solid ${A ? C.ink : C.sub}`, color: A ? C.ink : C.sub, fontFamily: SERIF, fontWeight: 900, fontSize: 32, padding: '2px 18px', borderRadius: 30, letterSpacing: 3, transform: 'rotate(-2deg)'}}>{A ? TX.answer : TX.bridge}</span>}
         <span style={{fontFamily: SERIF, fontWeight: 700, fontSize: 30, color: C.sub, letterSpacing: 2}}>{s.no} / {s.n}</span>
       </div>
       <div style={{position: 'absolute', left: 64, top: Y.head + 72, width: 900 * ramp(t, -4, 10), height: 4, background: C.ink}} />
       <div style={{position: 'absolute', left: 64, top: Y.head + 80, width: 900 * ramp(t, -2, 12), height: 1.5, background: C.ink}} />
       {/* 标本照片 */}
       {lay.plateK > 0.01 && (
-        <div style={{position: 'absolute', left: 64, top: Y.plate + Math.max(0, o), width: 900, height: 300, opacity: lay.plateK, transform: `scale(${lerp(0.9, 1, lay.plateK)})`, transformOrigin: '50% 0%'}}>
+        <div style={{position: 'absolute', left: 64, top: Y.plate, width: 900, height: 300 + lay.ex, opacity: lay.plateK, transform: `scale(${lerp(0.9, 1, lay.plateK)})`, transformOrigin: '50% 0%'}}>
           <div style={{position: 'absolute', inset: 0, background: C.card, boxShadow: '0 14px 34px rgba(40,24,10,0.22)'}} />
-          <Cover file={s.card} size={s.size} crop={s.photo} box={[10, 10, 880, 280]} focus={s.subject} z={z} />
+          <Cover file={s.card} size={s.size} crop={s.photo} box={[10, 10, 880, 280 + lay.ex]} focus={s.subject} z={z} />
           <Tape x={40} y={14} rot={-35} w={110} /><Tape x={860} y={14} rot={35} w={110} />
         </div>
       )}
       {/* 词条：名字 / 读音 / 词源 / 字面 / 参见 */}
-      <div style={{position: 'absolute', left: 64, top: Y.word + o, opacity: clamp(hp * 2.5) * (covered ? 0 : 1), transform: `scale(${lerp(1.2, 1, hp) * (inRc ? lerp(1.12, 1, pop) : 1)})`, transformOrigin: '0% 50%'}}>
+      <div style={{position: 'absolute', left: 64, top: Y.word + o, opacity: clamp(hp * 2.5) * (covered ? 0 : 1), transform: `scale(${lerp(1.2, 1, hp) * 1})`, transformOrigin: '0% 50%'}}>
         <Word w={w} C={C} fs={w.fs} hl={hlP} g={g} />
       </div>
       {inRc && <Sparks x={120} y={Y.word + o + w.fs * 0.6} f={rk - rc.t_reveal - 4} r={110} color={C.accent2} n={7} spread={26} a0={-120} />}
@@ -617,11 +617,11 @@ const BLang: React.FC<{s: any; plan: Plan; t: number}> = ({s, plan, t}) => {
       {parts.length > 0 && Y.etym != null && (
         <div style={{position: 'absolute', left: 64, top: Y.etym + o, height: 64, display: 'flex', alignItems: 'center', gap: 18, whiteSpace: 'nowrap', opacity: clamp(ep * 2) * (covered ? 0 : 1), transform: `translateX(${-30 * (1 - ep)}px)`}}>
           <span style={{background: C.ink, color: C.paper, fontFamily: SERIF, fontWeight: 900, fontSize: 30, padding: '4px 16px', borderRadius: 8, letterSpacing: 4}}>{TX.book_etym}</span>
-          <span style={{fontFamily: famOf(w.family), fontWeight: 900, fontSize: 46, color: C.ink, letterSpacing: 1}}>
+          <span style={{fontFamily: famOf(w.family), fontWeight: 900, fontSize: L.efs || 46, color: C.ink, letterSpacing: 1}}>
             {parts.map((p: any, i: number) => (
               <React.Fragment key={i}>
                 {i > 0 && <span style={{color: C.sub, margin: '0 10px'}}>＋</span>}
-                <span>{p.t}</span>{p.m && <span style={{fontFamily: SERIF, fontSize: 36, color: C.accent_text}}>〈{p.m}〉</span>}
+                <span>{p.t}</span>{p.m && <span style={{fontFamily: SERIF, fontSize: Math.round((L.efs || 46) * 0.78), color: C.accent_text}}>〈{p.m}〉</span>}
               </React.Fragment>
             ))}
           </span>
@@ -639,7 +639,7 @@ const BLang: React.FC<{s: any; plan: Plan; t: number}> = ({s, plan, t}) => {
           <span style={{marginTop: 9, background: C.accent_text, color: '#fff', fontFamily: SERIF, fontWeight: 900, fontSize: 30, padding: '4px 16px', borderRadius: 8, letterSpacing: 4, opacity: clamp((t - 16) / 6)}}>{TX.book_see}</span>
           <div style={{display: 'flex', flexDirection: 'column', gap: 0}}>
             {s.links.map((l: any, i: number) => (
-              <div key={i} style={{height: 58, display: 'flex', alignItems: 'center', gap: 12, fontFamily: famOf(w.family), fontWeight: 900, fontSize: 42, color: C.ink, opacity: clamp((t - 20 - i * 6) / 6), transform: `translateX(${-30 * (1 - clamp((t - 20 - i * 6) / 8))}px)`}}>
+              <div key={i} style={{height: 58, display: 'flex', alignItems: 'center', gap: 12, fontFamily: famOf(w.family), fontWeight: 900, fontSize: L.lfs || 42, color: C.ink, opacity: clamp((t - 20 - i * 6) / 6), transform: `translateX(${-30 * (1 - clamp((t - 20 - i * 6) / 8))}px)`}}>
                 <span style={{color: C.accent_text}}>{l.t}</span>
                 {l.prev.map((q: any, j: number) => (
                   <React.Fragment key={j}>
@@ -672,8 +672,8 @@ const BLang: React.FC<{s: any; plan: Plan; t: number}> = ({s, plan, t}) => {
             {c.u < 0.99 && (
               <div style={{position: 'absolute', inset: 0, opacity: 1 - c.u, transform: `scaleY(${1 - 0.7 * c.u})`, transformOrigin: `0 ${c.y + 60}px`}}>
                 <BookClip lift={st.lift} x={104} y={c.y + 64} k={c.k} C={C} rot={rot * (1 - c.u)} />
-                {st.note && <div style={{position: 'absolute', left: 104, top: c.y + 64 + bh + 10, width: 860, fontFamily: SERIF, fontWeight: 900, fontSize: 36, lineHeight: 1.35, color: C.ink, opacity: clamp((f - 10) / 8)}}>
-                  <span style={{color: C.accent_text}}>注　</span>{st.note}</div>}
+                {st.note && <div style={{position: 'absolute', left: 104, top: c.y + 64 + bh + 10, width: 860, display: 'flex', gap: 14, fontFamily: SERIF, fontWeight: 900, fontSize: 36, lineHeight: 1.35, color: C.ink, opacity: clamp((f - 10) / 8)}}>
+                  <span style={{color: C.accent_text, flex: 'none'}}>注</span><span>{st.note}</span></div>}
               </div>
             )}
           </div>
@@ -684,8 +684,8 @@ const BLang: React.FC<{s: any; plan: Plan; t: number}> = ({s, plan, t}) => {
         const dp = sp(rk, {damping: 12, stiffness: 240});
         const pk = ramp(rk, rc.t_reveal, rc.t_reveal + 12, (x) => x * x);
         return (
-          <div style={{position: 'absolute', left: 50, top: noteTop, width: 930, height: noteH, opacity: clamp(dp * 2) * (1 - pk),
-            transform: `translate(${700 * pk}px, ${-160 * pk + 60 * (1 - dp)}px) rotate(${lerp(-4, -0.8, dp) + 18 * pk}deg)`, transformOrigin: '100% 0%'}}>
+          <div style={{position: 'absolute', left: 50, top: noteTop, width: 930, height: noteH, opacity: clamp(dp * 2) * (1 - ramp(pk, 0.55, 0.9, (x) => x)),  // 揭走时不变透明（不会隔着纸看到名字）
+            transform: `translate(${1150 * pk}px, ${-220 * pk + 60 * (1 - dp)}px) rotate(${lerp(-4, -0.8, dp) + 22 * pk}deg)`, transformOrigin: '100% 0%'}}>
             <div style={{position: 'absolute', inset: 0, background: '#F3DDA6', boxShadow: '0 18px 40px rgba(40,24,10,0.30)', borderRadius: 4}} />
             <div style={{position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: SERIF, fontWeight: 900, fontSize: 66, color: C.ink, letterSpacing: 4, flexDirection: 'column', gap: 10}}><span style={{fontSize: 150, color: C.accent_text, lineHeight: 1}}>？</span><span>{TX.recall}</span></div>
             <Tape x={465} y={4} w={180} rot={-2} />
@@ -725,7 +725,7 @@ const BRecap: React.FC<{s: any; plan: Plan; t: number}> = ({s, plan, t}) => {
             <div style={{position: 'absolute', left: 64, top: y + wh / 2 - 30, width: 116, height: 60, borderRadius: 30, background: it.anchor ? C.accent : C.ink, color: it.anchor ? C.ink : C.paper,
               fontFamily: SERIF, fontWeight: 900, fontSize: 30, letterSpacing: 3, display: 'flex', alignItems: 'center', justifyContent: 'center'}}>{it.lang}</div>
             <div style={{position: 'absolute', left: 204, top: y, width: 760, height: wh, display: 'flex', alignItems: 'center', gap: 14}}>
-              <Word w={it.word} C={C} fs={it.bfs} hl={it.hlp} g={gw} tint />
+              <Word w={it.word} C={C} fs={it.bfs} hl={it.hlp} g={gw} />
               <div style={{flex: 1, alignSelf: 'center', marginTop: wh * 0.25, borderBottom: `5px dotted ${C.sub}88`}} />
               <span style={{fontFamily: SERIF, fontWeight: 900, fontSize: 36, color: C.sub, whiteSpace: 'nowrap'}}>p.{pad2(i + 1)}</span>
             </div>
@@ -783,11 +783,11 @@ const BOutro: React.FC<{s: any; plan: Plan; t: number}> = ({s, plan, t}) => {
           <div key={i} style={{position: 'absolute', inset: 0, opacity: clamp(p * 2), transform: `translateY(${24 * (1 - p)}px)`}}>
             <div style={{position: 'absolute', left: 184, top: y + 10, width: 116, height: 64, borderRadius: 32, background: it.anchor ? C.accent : C.ink, color: it.anchor ? C.ink : C.paper,
               fontFamily: SERIF, fontWeight: 900, fontSize: 30, letterSpacing: 3, display: 'flex', alignItems: 'center', justifyContent: 'center'}}>{it.lang}</div>
-            <div style={{position: 'absolute', left: 324, top: y, height: 84, display: 'flex', alignItems: 'center', fontFamily: famOf(it.word.family), fontWeight: 900, fontSize: it.ofs, color: C.ink, whiteSpace: 'nowrap', letterSpacing: 2}}>
+            <div style={{position: 'absolute', left: 324, top: y, height: 84, display: 'flex', alignItems: 'center', fontFamily: famOf(it.word.family), fontWeight: 900, fontSize: it.bofs || it.ofs, color: C.ink, whiteSpace: 'nowrap', letterSpacing: 2}}>
               <span style={{filter: `blur(${14 * (1 - rv)}px)`, opacity: lerp(0.55, 1, rv)}}>{it.word.text}</span>
             </div>
             {sp2 > 0 && <div style={{position: 'absolute', left: 860, top: y + 4, width: 76, height: 76, borderRadius: 38, border: `5px solid ${C.accent_text}`, color: C.accent_text, boxSizing: 'border-box',
-              display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: SERIF, fontWeight: 900, fontSize: 44, opacity: clamp(sp2 * 2) * 0.9, transform: `scale(${lerp(1.8, 1, sp2)}) rotate(-12deg)`}}>✓</div>}
+              display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: SERIF, fontWeight: 900, fontSize: 44, opacity: clamp(sp2 * 2), transform: `scale(${lerp(1.8, 1, sp2)}) rotate(-12deg)`}}>✓</div>}
           </div>
         );
       })}
@@ -837,7 +837,7 @@ export const Film: React.FC<Plan> = (plan) => {
       {plan.scenes.map((s: any, i: number) => {
         const Comp = ({hook: Hook, lang: Lang, recap: Recap, outro: Outro, quiz: Quiz, flash_q: FlashQ, flash: Flash, flash_sum: FlashSum, b_hook: BHook, b_lang: BLang, b_recap: BRecap, b_outro: BOutro} as any)[s.type];
         const first = i === 0, last = i === n - 1;
-        const Ti = s.cut ? 0 : T;
+        const Ti = s.cut ? 0 : (s.flipT || T);  // 图鉴式翻页比推镜长一点，看得出是在翻书
         return (
           <Sequence key={i} from={first ? 0 : s.start - Ti} durationInFrames={s.dur + (first ? 0 : Ti)} layout="none">
             <Shell T={Ti} dur={s.dur} first={first} last={last} flip={!!s.flip}>{(t) => <Comp s={s} plan={plan} t={t} />}</Shell>

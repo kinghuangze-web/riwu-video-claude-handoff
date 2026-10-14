@@ -764,7 +764,7 @@ def main(epdir, fmt=None, name=None):
     if fmt != "reveal":
         scenes, events, f, hud_dots = reformat(fmt, ep, epdir, scenes, B, L["transition"], events)
         if errors: finish(build, None, inputs); return
-        ls_ = [s for s in scenes if s["type"] in ("lang", "flash")]
+        ls_ = [s for s in scenes if s["type"] in ("lang", "flash", "b_lang")]  # 顶栏语言圆点
     # ---- 安全区：y>1000 时右侧按钮列（x>966）不放内容；底部 y>1600 是文案区 ----
     for sc in scenes:
         if sc["type"].startswith("b_"): continue  # 图鉴式自己排版、自己检查（book_layout）
@@ -782,7 +782,7 @@ def main(epdir, fmt=None, name=None):
     qc_lifts(build, plan)
 
 # ---------------- 图鉴式（book）：信息量和讲解式一样，排成一本博物图鉴 ----------------
-BK = {"top": 330, "plate_h": 300, "lim": 1580, "x0": 64, "clip_x": 104, "clip_w": 860, "label_h": 60, "gap": 26, "fold_h": 64, "note_h": 64}
+BK = {"top": 330, "plate_h": 300, "lim": 1580, "x0": 64, "clip_x": 104, "clip_w": 860, "label_h": 60, "gap": 26, "fold_h": 64, "note_h": 64, "flip_t": 16}  # flip_t：翻一页用 16 帧（0.53 秒）
 
 def book_layout(s):
     """一个语言词条页：每一步（名字 / 每块重点 / 回忆）各算一套位置。
@@ -800,12 +800,24 @@ def book_layout(s):
     if s["links"]: hy["links"] = y + 6; y += 12 + 58 * len(s["links"])
     hy["end"] = y
     head_end = y + 30
+    # 词源 / 参见 行按实际字宽自动缩字（三段以上的名字，如 coffee＋cup＋sleeve，46px 会出右边）
+    reg = w["family"].split()[-1]; W = 820  # 量宽和实际排字有约 8% 误差，留余量
+    def ew(f):
+        return 118 + sum(tw(p["t"], "Black", reg, f) + (tw("〈" + p["m"] + "〉", "Black", "SC", f * 0.78) if p.get("m") else 0) for p in w["parts"]) + (len(w["parts"]) - 1) * (tw("＋", "Black", "SC", f) + 20)
+    efs = 46
+    while etym and efs > 32 and ew(efs) > W: efs -= 2
+    if etym and ew(efs) > W: warns.append(f"图鉴式 {s['short']}: 词源一行放不下（{ew(efs):.0f}px）")
+    def lw(f):
+        return max([118 + tw(l["t"], "Black", reg, f) + sum(tw("＝", "Black", "SC", f) + tw(q["t"], "Black", reg, f) + 50 + 36 for q in l["prev"]) for l in s["links"]] or [0])
+    lfs = 42
+    while lfs > 32 and lw(lfs) > W: lfs -= 2
+    if lw(lfs) > W: warns.append(f"图鉴式 {s['short']}: 参见一行放不下（{lw(lfs):.0f}px）")
     clips = []
     for st in s["steps"]:
         if st.get("lift"):
             pw, ph = st["lift"]["panel"][2], st["lift"]["panel"][3]
             k = min(1.0, BK["clip_w"] / pw)
-            clips.append({"k": k, "h": ph, "note": bool(st.get("note"))})
+            clips.append({"k": k, "h": ph, "note": bool(st.get("note")), "px": st["lift"].get("text_px", 50), "nm": st["kind"]})
     def blk(c, k=None, fold=False):
         if fold: return BK["fold_h"] + 14
         return BK["label_h"] + c["h"] * (k or c["k"]) + (BK["note_h"] if c["note"] else 0) + BK["gap"]
@@ -826,10 +838,11 @@ def book_layout(s):
             i = vis[-1]; over = bottom() - BK["lim"]
             kk[i] = max(0.62, kk[i] - over / clips[i]["h"])
             if bottom() > BK["lim"]: warns.append(f"图鉴式 {s['short']}.{st['kind']}: 重点块太高，缩到 {kk[i]:.2f} 倍仍放不下（框少一点）")
+        if vis and kk[vis[-1]] * clips[vis[-1]]["px"] < 34:
+            warns.append(f"图鉴式 {s['short']}.{st['kind']}: 剪报缩小后正文只有 {kk[vis[-1]] * clips[vis[-1]]['px']:.0f}px（框少一点）")
         up = 0 if plate else BK["plate_h"] + 36
-        dy = 0
-        if not vis:  # 只有名字：整组稍往下放，别都挤在上半屏
-            dy = int(min(140, max(0, (BK["lim"] - head_end) * 0.35)))
+        # 页面下方有空：把标本照片放大（最多再高 300），词条和剪报整体下移，不让下半屏空着
+        dy = int(min(300, max(0, BK["lim"] - bottom() - 40))) if plate else 0
         yy = head_end - up + dy
         cl = []
         for i in range(len(clips)):
@@ -837,8 +850,8 @@ def book_layout(s):
                 cl.append({"y": round(yy), "k": round(kk[i], 4), "fold": i in fold}); yy += blk(clips[i], kk[i], i in fold)
             else:
                 cl.append({"y": round(yy + 80), "k": clips[i]["k"], "fold": False})
-        lays.append({"plate": plate, "up": up - dy, "clips": cl})
-    return {"y": {k: round(v) for k, v in hy.items()}, "lays": lays, "etym": etym}
+        lays.append({"plate": plate, "up": up - dy, "ex": dy, "clips": cl})
+    return {"y": {k: round(v) for k, v in hy.items()}, "lays": lays, "etym": etym, "efs": efs, "lfs": lfs}
 
 def book(ep, scenes, B, events0):
     out = []
@@ -847,9 +860,9 @@ def book(ep, scenes, B, events0):
     for sc in scenes:
         t = sc["type"]
         if t == "hook":
-            out.append(dict(sc, type="b_hook", flip=True, n=n))
+            out.append(dict(sc, type="b_hook", flip=True, flipT=BK["flip_t"], n=n))
         elif t == "lang":
-            out.append(dict(sc, type="b_lang", flip=True, book=book_layout(sc), n=n, no=sc["index"] + 1))
+            out.append(dict(sc, type="b_lang", flip=True, flipT=BK["flip_t"], book=book_layout(sc), n=n, no=sc["index"] + 1))
         elif t == "recap":
             its = []
             for it in sc["items"]:
@@ -858,9 +871,13 @@ def book(ep, scenes, B, events0):
             step = int(min(200, 900 / max(1, n)))
             ins = sc["insight"] or ""
             ifs = int(max(44, min(60, 820 / max(1, (tw(ins, "Black", "SC", 100) + 32) / 100))))
-            out.append(dict(sc, type="b_recap", flip=True, items=its, step=step, ifs=ifs))
+            out.append(dict(sc, type="b_recap", flip=True, flipT=BK["flip_t"], items=its, step=step, ifs=ifs))
         elif t == "outro":
-            out.append(dict(sc, type="b_outro", flip=True))
+            its = []
+            for it in sc["items"]:  # 记忆卡：名字右边要给 ✓ 章留位置（名字区宽 500）
+                reg = it["word"]["family"].split()[-1]
+                its.append(dict(it, bofs=int(min(60, 500 / max(1, (tw(it["word"]["text"], "Black", reg, 100) + 2 * len(it["word"]["text"])) / 100)))))
+            out.append(dict(sc, type="b_outro", flip=True, flipT=BK["flip_t"], items=its))
     return out
 
 def reformat(fmt, ep, epdir, scenes, B, TR, events0=None):
