@@ -87,7 +87,13 @@
   "quiz_comment": "我第一眼就选对了！",
   "flash_comment": "你最先记住了哪一个？",
   "quiz_ok": "就是它",
-  "quiz_no": "其实是"
+  "quiz_no": "其实是",
+  "book_index": "索引",
+  "book_note": "编者按",
+  "book_etym": "词源",
+  "book_see": "参见",
+  "book_card": "记忆卡",
+  "book_cover": "今日标本"
  },
  "name_hold_anchor": [
   3.0,

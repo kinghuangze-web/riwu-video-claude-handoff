@@ -476,7 +476,7 @@ def render_piece(im, src, dw, dh, path, white=False, to=None, line=False, alpha=
             out = Image.fromarray(np.clip(a / np.maximum(bg, 1) * tg, 0, 255).astype(np.uint8))
     out.save(path)
 
-FORMATS = ("reveal", "quiz", "flash")  # 讲解式（完整讲解）/ 猜选式 / 快闪式
+FORMATS = ("reveal", "quiz", "flash", "book")  # 讲解式（完整讲解）/ 猜选式 / 快闪式
 
 def quiz_pool(epdir, ep, short):
     """猜选式的干扰项：从同一系列其他期里取「同一种语言」的名字（都是真名字，只是不是这个东西的）。"""
@@ -762,11 +762,12 @@ def main(epdir, fmt=None, name=None):
 
     hud_dots = True
     if fmt != "reveal":
-        scenes, events, f, hud_dots = reformat(fmt, ep, epdir, scenes, B, L["transition"])
+        scenes, events, f, hud_dots = reformat(fmt, ep, epdir, scenes, B, L["transition"], events)
         if errors: finish(build, None, inputs); return
         ls_ = [s for s in scenes if s["type"] in ("lang", "flash")]
     # ---- 安全区：y>1000 时右侧按钮列（x>966）不放内容；底部 y>1600 是文案区 ----
     for sc in scenes:
+        if sc["type"].startswith("b_"): continue  # 图鉴式自己排版、自己检查（book_layout）
         lifts = [("hook", sc["lift"])] if sc["type"] == "hook" else [(f"{sc.get('short','')}.{st['kind']}", st["lift"]) for st in sc.get("steps", []) if st.get("lift")]
         for nm, lf in lifts:
             x, y, w, h = lf["panel"]
@@ -780,7 +781,89 @@ def main(epdir, fmt=None, name=None):
     finish(build, plan, inputs)
     qc_lifts(build, plan)
 
-def reformat(fmt, ep, epdir, scenes, B, TR):
+# ---------------- 图鉴式（book）：信息量和讲解式一样，排成一本博物图鉴 ----------------
+BK = {"top": 330, "plate_h": 300, "lim": 1580, "x0": 64, "clip_x": 104, "clip_w": 860, "label_h": 60, "gap": 26, "fold_h": 64, "note_h": 64}
+
+def book_layout(s):
+    """一个语言词条页：每一步（名字 / 每块重点 / 回忆）各算一套位置。
+    规则：内容放不下时，① 先收起标本照片，② 再把前面读过的剪报折成一行标签，③ 最后才把当前剪报缩小（最小 0.62）。"""
+    w = s["word"]; fs = w["fs"]
+    T = BK["top"]
+    hy = {"head": T}
+    y = T + 84
+    hy["plate"] = y; y += BK["plate_h"] + 36
+    hy["word"] = y; y += fs * 1.22
+    if s["reading"]: hy["reading"] = y + 2; y += 62
+    etym = [p for p in w["parts"] if p.get("m")] if w["show"] else []
+    if etym: hy["etym"] = y + 12; y += 80
+    if s["meaning"]: hy["mean"] = y + (4 if etym else 12); y += 74 if etym else 80
+    if s["links"]: hy["links"] = y + 6; y += 12 + 58 * len(s["links"])
+    hy["end"] = y
+    head_end = y + 30
+    clips = []
+    for st in s["steps"]:
+        if st.get("lift"):
+            pw, ph = st["lift"]["panel"][2], st["lift"]["panel"][3]
+            k = min(1.0, BK["clip_w"] / pw)
+            clips.append({"k": k, "h": ph, "note": bool(st.get("note"))})
+    def blk(c, k=None, fold=False):
+        if fold: return BK["fold_h"] + 14
+        return BK["label_h"] + c["h"] * (k or c["k"]) + (BK["note_h"] if c["note"] else 0) + BK["gap"]
+    lays, ci = [], -1
+    for st in s["steps"]:
+        if st.get("lift"): ci += 1
+        vis = list(range(ci + 1))
+        plate, fold, kk = True, set(), {i: clips[i]["k"] for i in vis}
+        def bottom():
+            return head_end - (0 if plate else BK["plate_h"] + 36) + sum(blk(clips[i], kk[i], i in fold) for i in vis)
+        if st["kind"] == "recall":  # 回忆：剪报全部折起（里面有答案），便利贴盖住整条词条，照片放回来当提示
+            fold = set(vis)
+        if bottom() > BK["lim"]: plate = False
+        for i in vis[:-1]:
+            if bottom() <= BK["lim"]: break
+            fold.add(i)
+        if vis and bottom() > BK["lim"] and st["kind"] != "recall":
+            i = vis[-1]; over = bottom() - BK["lim"]
+            kk[i] = max(0.62, kk[i] - over / clips[i]["h"])
+            if bottom() > BK["lim"]: warns.append(f"图鉴式 {s['short']}.{st['kind']}: 重点块太高，缩到 {kk[i]:.2f} 倍仍放不下（框少一点）")
+        up = 0 if plate else BK["plate_h"] + 36
+        dy = 0
+        if not vis:  # 只有名字：整组稍往下放，别都挤在上半屏
+            dy = int(min(140, max(0, (BK["lim"] - head_end) * 0.35)))
+        yy = head_end - up + dy
+        cl = []
+        for i in range(len(clips)):
+            if i in vis:
+                cl.append({"y": round(yy), "k": round(kk[i], 4), "fold": i in fold}); yy += blk(clips[i], kk[i], i in fold)
+            else:
+                cl.append({"y": round(yy + 80), "k": clips[i]["k"], "fold": False})
+        lays.append({"plate": plate, "up": up - dy, "clips": cl})
+    return {"y": {k: round(v) for k, v in hy.items()}, "lays": lays, "etym": etym}
+
+def book(ep, scenes, B, events0):
+    out = []
+    langs = [s for s in scenes if s["type"] == "lang"]
+    n = len(langs)
+    for sc in scenes:
+        t = sc["type"]
+        if t == "hook":
+            out.append(dict(sc, type="b_hook", flip=True, n=n))
+        elif t == "lang":
+            out.append(dict(sc, type="b_lang", flip=True, book=book_layout(sc), n=n, no=sc["index"] + 1))
+        elif t == "recap":
+            its = []
+            for it in sc["items"]:
+                reg = it["word"]["family"].split()[-1]
+                its.append(dict(it, bfs=int(min(84, 560 / max(1, (tw(it["word"]["text"], "Black", reg, 100) + 2 * len(it["word"]["text"])) / 100)))))
+            step = int(min(200, 900 / max(1, n)))
+            ins = sc["insight"] or ""
+            ifs = int(max(44, min(60, 820 / max(1, (tw(ins, "Black", "SC", 100) + 32) / 100))))
+            out.append(dict(sc, type="b_recap", flip=True, items=its, step=step, ifs=ifs))
+        elif t == "outro":
+            out.append(dict(sc, type="b_outro", flip=True))
+    return out
+
+def reformat(fmt, ep, epdir, scenes, B, TR, events0=None):
     """在「讲解式」算好的场景（名字排版、切片、复盘行）基础上，重新编排成别的版式。不新增任何卡片外的知识。"""
     TX = STYLE["text"]
     hook = scenes[0]; langs = [s for s in scenes if s["type"] == "lang"]
@@ -791,6 +874,8 @@ def reformat(fmt, ep, epdir, scenes, B, TR):
     def put(sc, d):
         nonlocal f
         sc = dict(sc); sc["start"] = f; sc["dur"] = d; out.append(sc); f += d; return sc
+    if fmt == "book":
+        return book(ep, scenes, B, events0), events0, scenes[-1]["start"] + scenes[-1]["dur"], True
     if fmt == "quiz":
         reg = STYLE["lang_font"].get(A["short"], "SC")
         pool = [p for p in quiz_pool(epdir, ep, A["short"]) if p["text"] != A["word"]["text"]]

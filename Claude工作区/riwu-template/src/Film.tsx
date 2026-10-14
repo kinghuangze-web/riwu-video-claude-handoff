@@ -40,7 +40,7 @@ const HUD: React.FC<{plan: Plan; f: number}> = ({plan, f}) => {
 };
 
 // 场景外壳：相邻场景重叠 T 帧，新场景从右推入、旧场景同步推出 → 没有空帧
-const Shell: React.FC<{T: number; dur: number; first: boolean; last: boolean; children: (t: number) => React.ReactNode}> = ({T, dur, first, last, children}) => {
+const Shell: React.FC<{T: number; dur: number; first: boolean; last: boolean; flip?: boolean; children: (t: number) => React.ReactNode}> = ({T, dur, first, last, flip, children}) => {
   if (T === 0) {  // 快闪式：硬切，不推镜
     const t0 = useCurrentFrame();
     return <AbsoluteFill style={{overflow: 'hidden'}}><Paper />{children(t0)}</AbsoluteFill>;
@@ -48,6 +48,16 @@ const Shell: React.FC<{T: number; dur: number; first: boolean; last: boolean; ch
   const t = useCurrentFrame() - (first ? 0 : T);
   const kin = first ? 1 : ramp(t, -T, 0, inOut);
   const kout = last ? 0 : ramp(t, dur - T, dur, inOut);
+  if (flip) {  // 图鉴式：翻书页。旧页以左边为轴翻走（盖在新页上面），新页原地不动、阴影慢慢褪去
+    return (
+      <AbsoluteFill style={{overflow: 'hidden', zIndex: !last && t >= dur - T ? 2 : 1, transform: kout > 0 ? `perspective(2400px) rotateY(${-100 * kout}deg)` : undefined, transformOrigin: '0% 50%', backfaceVisibility: 'hidden'}}>
+        <Paper />
+        {children(t)}
+        {kout > 0 && <div style={{position: 'absolute', inset: 0, background: `linear-gradient(90deg, rgba(20,12,6,0), rgba(20,12,6,${0.35 * kout}))`}} />}
+        {kin < 1 && <div style={{position: 'absolute', inset: 0, background: `rgba(20,12,6,${0.3 * (1 - kin)})`}} />}
+      </AbsoluteFill>
+    );
+  }
   const x = 1080 * (1 - kin) - 1080 * kout;
   return (
     <AbsoluteFill style={{transform: `translateX(${x}px)`, overflow: 'hidden', boxShadow: kin < 1 ? '-30px 0 60px rgba(20,12,6,0.25)' : undefined}}>
@@ -494,6 +504,305 @@ const FlashSum: React.FC<{s: any; plan: Plan; t: number}> = ({s, plan, t}) => {
   );
 };
 
+// ================= 图鉴式（book）：信息和讲解式完全一样，排成一本博物图鉴：封面 → 每种语言一页词条 → 索引页 → 记忆卡 =================
+const NUM = '①②③④⑤⑥⑦⑧⑨';
+const pad2 = (n: number) => (n < 10 ? '0' : '') + n;
+const Tape: React.FC<{x: number; y: number; w?: number; rot?: number; o?: number}> = ({x, y, w = 120, rot = -6, o = 1}) => (
+  <div style={{position: 'absolute', left: x - w / 2, top: y - 18, width: w, height: 36, background: 'rgba(231,198,144,0.72)', transform: `rotate(${rot}deg)`, opacity: o,
+    boxShadow: '0 2px 6px rgba(40,24,10,0.12)', borderLeft: '2px dashed rgba(255,255,255,0.5)', borderRight: '2px dashed rgba(255,255,255,0.5)'}} />
+);
+// 书页底：左侧书脊阴影 + 外框细线
+const PageBg: React.FC<{C: any}> = ({C}) => (
+  <>
+    <div style={{position: 'absolute', left: 0, top: 0, width: 46, height: 1920, background: 'linear-gradient(90deg, rgba(60,40,20,0.20), rgba(60,40,20,0))'}} />
+    <div style={{position: 'absolute', left: 30, top: 200, width: 1020, height: 1500, border: `2px solid ${C.accent2}55`, borderRadius: 6}} />
+  </>
+);
+// 一块剪报：把卡上的原图切片按 k 倍缩放贴到 (x, y)
+const BookClip: React.FC<{lift: any; x: number; y: number; k: number; C: any; rot?: number}> = ({lift, x, y, k, C, rot = 0}) => {
+  const [px, py, pw, ph] = lift.panel;
+  return (
+    <div style={{position: 'absolute', left: x, top: y, width: pw * k, height: ph * k, transform: `rotate(${rot}deg)`, transformOrigin: '50% 0%'}}>
+      <div style={{position: 'absolute', inset: 0, background: lift.bg || C.card, borderRadius: 8, boxShadow: '0 14px 30px rgba(40,24,10,0.22)'}} />
+      <div style={{position: 'absolute', left: 0, top: 0, width: pw, height: ph, transform: `scale(${k})`, transformOrigin: '0 0'}}>
+        {lift.pieces.map((pc: any, i: number) => <Img key={i} src={staticFile(pc.img)} style={{position: 'absolute', left: pc.dst[0] - px, top: pc.dst[1] - py, width: pc.dst[2], height: pc.dst[3]}} />)}
+      </div>
+      <Tape x={pw * k / 2} y={0} w={130} rot={rot > 0 ? -4 : 4} />
+    </div>
+  );
+};
+
+const BHook: React.FC<{s: any; plan: Plan; t: number}> = ({s, plan, t}) => {
+  const C = plan.style.colors, TX = plan.style.text, B = s.beat;
+  const zOut = ramp(t, s.t_zoom, s.t_zoom + 12);
+  const f2 = [0, 1, 2, 3].map((k) => lerp(s.subject[k], lerp(s.subject[k], s.photo[k], 0.55), zOut));
+  const z = lerp(1.9, 1.02, zOut) + 0.04 * ramp(t, s.t_zoom, s.dur, (x) => x);
+  const P = s.lift.panel, k = Math.min(1, 860 / P[2]), qx = 540 - P[2] * k / 2, qy = 1060;
+  const fp = sp(t + 4, {damping: 14});
+  const lp = sp(t - 4, {damping: 12});
+  return (
+    <>
+      <div style={{position: 'absolute', inset: 0, background: C.ink}} />
+      <div style={{position: 'absolute', inset: 0, background: 'radial-gradient(ellipse at 50% 40%, rgba(255,240,210,0.10), rgba(0,0,0,0) 70%)'}} />
+      <div style={{position: 'absolute', left: 44, top: 340, width: 992, height: 1340, border: `3px solid ${C.accent2}`, borderRadius: 10}} />
+      <div style={{position: 'absolute', left: 58, top: 354, width: 964, height: 1312, border: `1px solid ${C.accent2}88`, borderRadius: 6}} />
+      {/* 标本照片（镶在封面框里） */}
+      <div style={{position: 'absolute', left: 120, top: 420, width: 840, height: 560, background: C.card, padding: 12, boxSizing: 'border-box', boxShadow: '0 20px 50px rgba(0,0,0,0.5)', opacity: clamp(fp * 2), transform: `scale(${lerp(0.94, 1, fp)})`}}>
+        <Cover file={s.card} size={s.size} crop={s.photo} box={[12, 12, 816, 536]} focus={f2} z={z} />
+      </div>
+      <Tape x={170} y={428} rot={-30} /><Tape x={910} y={428} rot={30} />
+      <div style={{position: 'absolute', left: 120, width: 840, top: 1004, textAlign: 'center', fontFamily: SERIF, fontWeight: 900, fontSize: 34, letterSpacing: 14, color: C.accent2, opacity: clamp(lp * 2)}}>— {TX.book_cover} —</div>
+      <div style={{position: 'absolute', inset: 0, transform: `translate(${qx - P[0] * k}px, ${qy - P[1] * k}px) scale(${k})`, transformOrigin: '0 0'}}>
+        <Panel lift={s.lift} f={t + 30} dur={1e6} exit={false} C={C} />
+      </div>
+      {t >= s.t_count && <Chip text={s.countText} x={120} y={1400} f={t - s.t_count} C={C} size={50} />}
+      <Ring C={C} t={t} t0={s.t_count} t1={s.dur} B={B} cx={860} cy={1440} />
+    </>
+  );
+};
+
+const BLang: React.FC<{s: any; plan: Plan; t: number}> = ({s, plan, t}) => {
+  const C = plan.style.colors, TX = plan.style.text, L = s.book, Y = L.y, w = s.word;
+  // 当前这一步的版面（在相邻两步之间平滑过渡）
+  let lay: any = {...L.lays[0], plateK: L.lays[0].plate ? 1 : 0, clips: L.lays[0].clips.map((c: any) => ({...c, u: c.fold ? 1 : 0}))};
+  s.steps.forEach((st: any, i: number) => {
+    if (i === 0 || t < st.start - 3) return;
+    const a = L.lays[i - 1], b = L.lays[i], q = ramp(t, st.start - 3, st.start + 9, inOut);
+    lay = {up: lerp(a.up, b.up, q), plateK: lerp(a.plate ? 1 : 0, b.plate ? 1 : 0, q),
+      clips: b.clips.map((c: any, j: number) => ({y: lerp(a.clips[j].y, c.y, q), k: lerp(a.clips[j].k, c.k, q), u: lerp(a.clips[j].fold ? 1 : 0, c.fold ? 1 : 0, q)}))};
+  });
+  const o = -lay.up;
+  const A = s.anchor, Bg = s.bridge;
+  const hp = sp(t - 4, {damping: 12, stiffness: 200});
+  const rp = sp(t - 10, {damping: 14}), ep = sp(t - 14, {damping: 14}), mp = sp(t - 18, {damping: 14});
+  const hlP = (s.links || []).map((l: any) => l.p);
+  const g = ramp(t, 22, 34);
+  const rc = s.steps.find((st: any) => st.kind === 'recall');
+  const rk = rc ? t - rc.start : -1, inRc = rc && rk >= 0;
+  const covered = inRc && rk >= 8 && rk < rc.t_reveal + 2;  // 便利贴完全盖住时名字不渲染（不会从纸下透出来）
+  const pop = inRc && rk >= rc.t_reveal ? sp(rk - rc.t_reveal, {damping: 9, stiffness: 300}) : 1;
+  const parts = L.etym.length ? w.parts : [];
+  const z = 1.04 + 0.06 * ramp(t, 0, s.dur, (x) => x);
+  const noteTop = Y.word + o - 4, noteH = Y.end - Y.word + 8;  // 便利贴盖住整条词条（名字、读音、词源、字面、参见都有答案）
+  let ci = -1;
+  return (
+    <>
+      <PageBg C={C} />
+      {/* 页眉：编号 + 语言 + 标签，下面双线 */}
+      <div style={{position: 'absolute', left: 64, top: Y.head, height: 64, display: 'flex', alignItems: 'center', gap: 22, whiteSpace: 'nowrap', opacity: clamp(sp(t + 2) * 2)}}>
+        <span style={{fontFamily: SERIF, fontWeight: 900, fontSize: 46, color: C.accent_text, letterSpacing: 2}}>No.{pad2(s.no)}</span>
+        <span style={{background: A ? C.accent : C.ink, color: A ? C.ink : C.paper, fontFamily: SERIF, fontWeight: 900, fontSize: 40, padding: '4px 24px', borderRadius: 32, letterSpacing: 4}}>{s.lang}</span>
+        {(A || Bg) && !inRc && <span style={{border: `3px solid ${A ? C.ink : C.sub}`, color: A ? C.ink : C.sub, fontFamily: SERIF, fontWeight: 900, fontSize: 32, padding: '2px 18px', borderRadius: 30, letterSpacing: 3, transform: 'rotate(-2deg)'}}>{A ? TX.answer : TX.bridge}</span>}
+        <span style={{fontFamily: SERIF, fontWeight: 700, fontSize: 30, color: C.sub, letterSpacing: 2}}>{s.no} / {s.n}</span>
+      </div>
+      <div style={{position: 'absolute', left: 64, top: Y.head + 72, width: 900 * ramp(t, -4, 10), height: 4, background: C.ink}} />
+      <div style={{position: 'absolute', left: 64, top: Y.head + 80, width: 900 * ramp(t, -2, 12), height: 1.5, background: C.ink}} />
+      {/* 标本照片 */}
+      {lay.plateK > 0.01 && (
+        <div style={{position: 'absolute', left: 64, top: Y.plate + Math.max(0, o), width: 900, height: 300, opacity: lay.plateK, transform: `scale(${lerp(0.9, 1, lay.plateK)})`, transformOrigin: '50% 0%'}}>
+          <div style={{position: 'absolute', inset: 0, background: C.card, boxShadow: '0 14px 34px rgba(40,24,10,0.22)'}} />
+          <Cover file={s.card} size={s.size} crop={s.photo} box={[10, 10, 880, 280]} focus={s.subject} z={z} />
+          <Tape x={40} y={14} rot={-35} w={110} /><Tape x={860} y={14} rot={35} w={110} />
+        </div>
+      )}
+      {/* 词条：名字 / 读音 / 词源 / 字面 / 参见 */}
+      <div style={{position: 'absolute', left: 64, top: Y.word + o, opacity: clamp(hp * 2.5) * (covered ? 0 : 1), transform: `scale(${lerp(1.2, 1, hp) * (inRc ? lerp(1.12, 1, pop) : 1)})`, transformOrigin: '0% 50%'}}>
+        <Word w={w} C={C} fs={w.fs} hl={hlP} g={g} />
+      </div>
+      {inRc && <Sparks x={120} y={Y.word + o + w.fs * 0.6} f={rk - rc.t_reveal - 4} r={110} color={C.accent2} n={7} spread={26} a0={-120} />}
+      {s.reading && Y.reading != null && (
+        <div style={{position: 'absolute', left: 68, top: Y.reading + o, height: 58, display: 'flex', alignItems: 'center', fontFamily: famOf(w.family), fontWeight: 700, fontSize: 42, color: C.sub, letterSpacing: 3, whiteSpace: 'nowrap',
+          opacity: clamp(rp * 2) * (covered ? 0 : 1), transform: `translateY(${14 * (1 - rp)}px)`}}>{s.reading}</div>
+      )}
+      {parts.length > 0 && Y.etym != null && (
+        <div style={{position: 'absolute', left: 64, top: Y.etym + o, height: 64, display: 'flex', alignItems: 'center', gap: 18, whiteSpace: 'nowrap', opacity: clamp(ep * 2) * (covered ? 0 : 1), transform: `translateX(${-30 * (1 - ep)}px)`}}>
+          <span style={{background: C.ink, color: C.paper, fontFamily: SERIF, fontWeight: 900, fontSize: 30, padding: '4px 16px', borderRadius: 8, letterSpacing: 4}}>{TX.book_etym}</span>
+          <span style={{fontFamily: famOf(w.family), fontWeight: 900, fontSize: 46, color: C.ink, letterSpacing: 1}}>
+            {parts.map((p: any, i: number) => (
+              <React.Fragment key={i}>
+                {i > 0 && <span style={{color: C.sub, margin: '0 10px'}}>＋</span>}
+                <span>{p.t}</span>{p.m && <span style={{fontFamily: SERIF, fontSize: 36, color: C.accent_text}}>〈{p.m}〉</span>}
+              </React.Fragment>
+            ))}
+          </span>
+        </div>
+      )}
+      {s.meaning && Y.mean != null && (
+        <div style={{position: 'absolute', left: 64, top: Y.mean + o, height: 64, display: 'flex', alignItems: 'center', gap: 18, whiteSpace: 'nowrap', opacity: clamp(mp * 2) * (covered ? 0 : 1), transform: `translateX(${-30 * (1 - mp)}px)`}}>
+          <span style={{border: `3px solid ${C.ink}`, color: C.ink, fontFamily: SERIF, fontWeight: 900, fontSize: 30, padding: '1px 14px', borderRadius: 8, letterSpacing: 4}}>{TX.meaning}</span>
+          <span style={{fontFamily: SERIF, fontWeight: 900, fontSize: 48, color: C.ink, letterSpacing: 3, background: `linear-gradient(transparent 60%, ${C.accent} 60%, ${C.accent} 92%, transparent 92%)`,
+            backgroundSize: `${100 * ramp(t, 22, 36)}% 100%`, backgroundRepeat: 'no-repeat'}}>{s.meaning}</span>
+        </div>
+      )}
+      {s.links && s.links.length > 0 && Y.links != null && t >= 16 && (
+        <div style={{position: 'absolute', left: 64, top: Y.links + o, display: 'flex', alignItems: 'flex-start', gap: 18, whiteSpace: 'nowrap', opacity: covered ? 0 : 1}}>
+          <span style={{marginTop: 9, background: C.accent_text, color: '#fff', fontFamily: SERIF, fontWeight: 900, fontSize: 30, padding: '4px 16px', borderRadius: 8, letterSpacing: 4, opacity: clamp((t - 16) / 6)}}>{TX.book_see}</span>
+          <div style={{display: 'flex', flexDirection: 'column', gap: 0}}>
+            {s.links.map((l: any, i: number) => (
+              <div key={i} style={{height: 58, display: 'flex', alignItems: 'center', gap: 12, fontFamily: famOf(w.family), fontWeight: 900, fontSize: 42, color: C.ink, opacity: clamp((t - 20 - i * 6) / 6), transform: `translateX(${-30 * (1 - clamp((t - 20 - i * 6) / 8))}px)`}}>
+                <span style={{color: C.accent_text}}>{l.t}</span>
+                {l.prev.map((q: any, j: number) => (
+                  <React.Fragment key={j}>
+                    <span style={{color: C.sub, fontWeight: 700}}>＝</span>
+                    <span>{q.t}</span>
+                    <span style={{fontFamily: SERIF, fontSize: 30, fontWeight: 900, color: C.paper, background: C.sub, borderRadius: 14, padding: '1px 10px'}}>{q.short}</span>
+                  </React.Fragment>
+                ))}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+      {/* 重点：一块块剪报贴上来（编号 + 原图切片 + 注） */}
+      {s.steps.map((st: any, i: number) => {
+        if (!st.lift) return null;
+        ci += 1;
+        const c = lay.clips[ci], f = t - st.start;
+        if (f < -3) return null;
+        const p = sp(f + 3, {damping: 13, stiffness: 200});
+        const rot = ci % 2 ? 0.8 : -0.8;
+        const P = st.lift.panel, bh = P[3] * c.k;
+        return (
+          <div key={i} style={{position: 'absolute', inset: 0, opacity: clamp(p * 2.5), transform: `translateY(${50 * (1 - p)}px)`}}>
+            <div style={{position: 'absolute', left: 64, top: c.y, height: 56, display: 'flex', alignItems: 'center', gap: 14, whiteSpace: 'nowrap',
+              background: c.u > 0.5 ? C.card : undefined, borderRadius: 10, padding: c.u > 0.5 ? '0 20px 0 0' : 0, boxShadow: c.u > 0.5 ? '0 6px 14px rgba(40,24,10,0.14)' : undefined}}>
+              <span style={{fontFamily: SERIF, fontWeight: 900, fontSize: 44, color: C.accent_text}}>{NUM[ci] || ci + 1}</span>
+              <span style={{fontFamily: SERIF, fontWeight: 900, fontSize: 38, color: C.ink, letterSpacing: 3}}>{st.label}</span>
+            </div>
+            {c.u < 0.99 && (
+              <div style={{position: 'absolute', inset: 0, opacity: 1 - c.u, transform: `scaleY(${1 - 0.7 * c.u})`, transformOrigin: `0 ${c.y + 60}px`}}>
+                <BookClip lift={st.lift} x={104} y={c.y + 64} k={c.k} C={C} rot={rot * (1 - c.u)} />
+                {st.note && <div style={{position: 'absolute', left: 104, top: c.y + 64 + bh + 10, width: 860, fontFamily: SERIF, fontWeight: 900, fontSize: 36, lineHeight: 1.35, color: C.ink, opacity: clamp((f - 10) / 8)}}>
+                  <span style={{color: C.accent_text}}>注　</span>{st.note}</div>}
+              </div>
+            )}
+          </div>
+        );
+      })}
+      {/* 回忆：便利贴盖住名字 → 揭开 */}
+      {inRc && rk < rc.t_reveal + 14 && (() => {
+        const dp = sp(rk, {damping: 12, stiffness: 240});
+        const pk = ramp(rk, rc.t_reveal, rc.t_reveal + 12, (x) => x * x);
+        return (
+          <div style={{position: 'absolute', left: 50, top: noteTop, width: 930, height: noteH, opacity: clamp(dp * 2) * (1 - pk),
+            transform: `translate(${700 * pk}px, ${-160 * pk + 60 * (1 - dp)}px) rotate(${lerp(-4, -0.8, dp) + 18 * pk}deg)`, transformOrigin: '100% 0%'}}>
+            <div style={{position: 'absolute', inset: 0, background: '#F3DDA6', boxShadow: '0 18px 40px rgba(40,24,10,0.30)', borderRadius: 4}} />
+            <div style={{position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: SERIF, fontWeight: 900, fontSize: 66, color: C.ink, letterSpacing: 4, flexDirection: 'column', gap: 10}}><span style={{fontSize: 150, color: C.accent_text, lineHeight: 1}}>？</span><span>{TX.recall}</span></div>
+            <Tape x={465} y={4} w={180} rot={-2} />
+          </div>
+        );
+      })()}
+    </>
+  );
+};
+
+const BRecap: React.FC<{s: any; plan: Plan; t: number}> = ({s, plan, t}) => {
+  const C = plan.style.colors, TX = plan.style.text;
+  const hp = sp(t, {damping: 12});
+  const ti = t - s.t_insight;
+  const y0 = 560, st = s.step, n = s.items.length;
+  const by = y0 + n * st + 20;
+  return (
+    <>
+      <PageBg C={C} />
+      <div style={{position: 'absolute', left: 64, top: 330, display: 'flex', alignItems: 'baseline', gap: 26, opacity: clamp(hp * 2), transform: `translateY(${24 * (1 - hp)}px)`}}>
+        <span style={{fontFamily: SERIF, fontWeight: 900, fontSize: 84, color: C.ink, letterSpacing: 12}}>{TX.book_index}</span>
+        <span style={{fontFamily: SERIF, fontWeight: 900, fontSize: 30, color: C.accent_text, letterSpacing: 10}}>INDEX</span>
+      </div>
+      <div style={{position: 'absolute', left: 64, top: 450, fontFamily: SERIF, fontWeight: 700, fontSize: 42, color: C.sub, letterSpacing: 3, opacity: clamp((t - 4) / 8)}}>{s.head}</div>
+      <div style={{position: 'absolute', left: 64, top: 520, width: 900 * ramp(t, 2, 14), height: 4, background: C.ink}} />
+      {s.items.map((it: any, i: number) => {
+        const f = t - 6 - i * 5;
+        if (f < 0) return null;
+        const p = sp(f, {damping: 13, stiffness: 240});
+        const y = y0 + i * st;
+        const gl = it.hl && ti >= 0 ? sp(ti - 2 - i * 2, {damping: 12}) : 0;
+        const gw = ti >= 0 ? ramp(ti, 2 + i * 2, 14 + i * 2) : 0;
+        const wh = Math.round(it.bfs * 1.25);
+        return (
+          <div key={i} style={{position: 'absolute', inset: 0, opacity: clamp(p * 2.5), transform: `translateX(${-60 * (1 - p)}px)`}}>
+            {gl > 0 && <div style={{position: 'absolute', left: 30, top: y + 6, width: 14 * gl, height: st - 30, background: C.accent2, borderRadius: '0 6px 6px 0'}} />}
+            <div style={{position: 'absolute', left: 64, top: y + wh / 2 - 30, width: 116, height: 60, borderRadius: 30, background: it.anchor ? C.accent : C.ink, color: it.anchor ? C.ink : C.paper,
+              fontFamily: SERIF, fontWeight: 900, fontSize: 30, letterSpacing: 3, display: 'flex', alignItems: 'center', justifyContent: 'center'}}>{it.lang}</div>
+            <div style={{position: 'absolute', left: 204, top: y, width: 760, height: wh, display: 'flex', alignItems: 'center', gap: 14}}>
+              <Word w={it.word} C={C} fs={it.bfs} hl={it.hlp} g={gw} tint />
+              <div style={{flex: 1, alignSelf: 'center', marginTop: wh * 0.25, borderBottom: `5px dotted ${C.sub}88`}} />
+              <span style={{fontFamily: SERIF, fontWeight: 900, fontSize: 36, color: C.sub, whiteSpace: 'nowrap'}}>p.{pad2(i + 1)}</span>
+            </div>
+            {it.meaning && <div style={{position: 'absolute', left: 208, top: y + wh + 4, fontFamily: SERIF, fontWeight: gl > 0 ? 900 : 700, fontSize: 34, color: gl > 0 ? C.ink : C.sub, letterSpacing: 2, whiteSpace: 'nowrap'}}>{TX.meaning} · {it.meaning}</div>}
+          </div>
+        );
+      })}
+      {s.insight && ti >= 0 && (() => {
+        const p = sp(ti, {damping: 11, stiffness: 240});
+        return (
+          <div style={{position: 'absolute', left: 64, top: by, width: 900, opacity: clamp(p * 2), transform: `scale(${lerp(1.1, 1, p)}) rotate(${lerp(-2, -0.6, p)}deg)`, transformOrigin: '0% 0%'}}>
+            <div style={{position: 'relative', marginTop: 26, background: '#FBF3E2', border: `3px solid ${C.accent2}`, borderRadius: 10, padding: '44px 36px 30px', boxShadow: '0 14px 34px rgba(40,24,10,0.18)',
+              fontFamily: SERIF, fontWeight: 900, fontSize: s.ifs, lineHeight: 1.35, color: C.ink}}>
+              <span style={{background: `linear-gradient(transparent 58%, ${C.accent} 58%, ${C.accent} 92%, transparent 92%)`, backgroundSize: `${100 * ramp(ti, 4, 18)}% 100%`, backgroundRepeat: 'no-repeat'}}>{s.insight}</span>
+            </div>
+            <span style={{position: 'absolute', left: 30, top: 0, background: C.accent_text, color: '#fff', fontFamily: SERIF, fontWeight: 900, fontSize: 32, padding: '6px 20px', borderRadius: 8, letterSpacing: 6}}>{TX.book_note}</span>
+          </div>
+        );
+      })()}
+    </>
+  );
+};
+
+const BOutro: React.FC<{s: any; plan: Plan; t: number}> = ({s, plan, t}) => {
+  const C = plan.style.colors, TX = plan.style.text, B = s.beat;
+  const l1 = sp(t - B * 0.6, {damping: 10, stiffness: 280}), l2 = sp(t - B * 1.4, {damping: 10, stiffness: 280});
+  const tf = t - Math.round(B * 3);
+  const chars = Array.from(s.comment as string);
+  const typed = tf < 0 ? 0 : Math.min(chars.length, Math.floor(tf / 3));
+  const caret = Math.floor(t / 9) % 2 === 0;
+  const n = s.items.length, step = 116, cy = 620, rows0 = cy + 130, cH = 130 + n * step + 150;
+  const cp = sp(t + 8, {damping: 14});  // 翻到这一页时卡片已经在了（不出现空白页）
+  const ep = String(plan.episode || '').replace(/^([A-Za-z]+)(\d+)$/, '$1.$2');
+  const big: React.CSSProperties = {position: 'absolute', left: 64, fontFamily: SERIF, fontWeight: 900, fontSize: 96, color: C.ink, letterSpacing: 6, transformOrigin: '0% 50%', whiteSpace: 'nowrap'};
+  return (
+    <>
+      <PageBg C={C} />
+      <div style={{...big, top: 340, opacity: clamp(l1 * 2), transform: `scale(${lerp(1.4, 1, l1)})`}}>{s.lines[0]}</div>
+      <div style={{...big, top: 466, opacity: clamp(l2 * 2), transform: `scale(${lerp(1.4, 1, l2)})`}}>
+        <span style={{background: `linear-gradient(transparent 62%, ${C.accent} 62%, ${C.accent} 92%, transparent 92%)`, backgroundSize: `${100 * ramp(t - B * 1.4, 6, 18)}% 100%`, backgroundRepeat: 'no-repeat'}}>{s.lines[1]}</span>
+      </div>
+      <div style={{position: 'absolute', left: 64, top: cy, width: 900, height: cH, opacity: clamp(cp * 2), transform: `translateY(${80 * (1 - cp)}px) rotate(${lerp(3, 0.6, cp)}deg)`, transformOrigin: '50% 0%'}}>
+        <div style={{position: 'absolute', inset: 0, background: '#FBF7F0', borderRadius: 14, boxShadow: '0 20px 50px rgba(40,24,10,0.25)',
+          backgroundImage: `repeating-linear-gradient(transparent 0px, transparent ${step - 2}px, ${C.accent2}44 ${step - 2}px, ${C.accent2}44 ${step}px)`, backgroundPosition: `0 ${130 - 14}px`}} />
+        <div style={{position: 'absolute', left: 96, top: 0, width: 3, height: cH, background: '#D9897A88'}} />
+        <div style={{position: 'absolute', left: 120, top: 34, fontFamily: SERIF, fontWeight: 900, fontSize: 46, color: C.ink, letterSpacing: 6, display: 'flex', alignItems: 'baseline', gap: 18}}><span>{TX.book_card}</span><span style={{color: C.accent_text, fontSize: 34, letterSpacing: 2}}>{ep}</span></div>
+        <Tape x={450} y={0} w={200} rot={-2} />
+      </div>
+      {s.items.map((it: any, i: number) => {
+        const p = sp(t + 6 - i * 3, {damping: 14});  // 记忆卡翻到时各行（模糊的名字）就跟着出现
+        const rv = ramp(t, s.t_reveal + i * 4, s.t_reveal + i * 4 + 8);
+        const sp2 = t >= s.t_reveal + i * 4 + 4 ? sp(t - s.t_reveal - i * 4 - 4, {damping: 9, stiffness: 320}) : 0;
+        const y = rows0 + i * step;
+        return (
+          <div key={i} style={{position: 'absolute', inset: 0, opacity: clamp(p * 2), transform: `translateY(${24 * (1 - p)}px)`}}>
+            <div style={{position: 'absolute', left: 184, top: y + 10, width: 116, height: 64, borderRadius: 32, background: it.anchor ? C.accent : C.ink, color: it.anchor ? C.ink : C.paper,
+              fontFamily: SERIF, fontWeight: 900, fontSize: 30, letterSpacing: 3, display: 'flex', alignItems: 'center', justifyContent: 'center'}}>{it.lang}</div>
+            <div style={{position: 'absolute', left: 324, top: y, height: 84, display: 'flex', alignItems: 'center', fontFamily: famOf(it.word.family), fontWeight: 900, fontSize: it.ofs, color: C.ink, whiteSpace: 'nowrap', letterSpacing: 2}}>
+              <span style={{filter: `blur(${14 * (1 - rv)}px)`, opacity: lerp(0.55, 1, rv)}}>{it.word.text}</span>
+            </div>
+            {sp2 > 0 && <div style={{position: 'absolute', left: 860, top: y + 4, width: 76, height: 76, borderRadius: 38, border: `5px solid ${C.accent_text}`, color: C.accent_text, boxSizing: 'border-box',
+              display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: SERIF, fontWeight: 900, fontSize: 44, opacity: clamp(sp2 * 2) * 0.9, transform: `scale(${lerp(1.8, 1, sp2)}) rotate(-12deg)`}}>✓</div>}
+          </div>
+        );
+      })}
+      {tf > -4 && (
+        <div style={{position: 'absolute', left: 184, top: rows0 + n * step + 26, width: 740, height: 84, display: 'flex', alignItems: 'center', fontFamily: SERIF, fontSize: 46, color: C.ink, fontWeight: 900, opacity: clamp((tf + 4) / 6)}}>
+          <span style={{marginRight: 18, fontSize: 42}}>✍︎</span>
+          <span>{chars.slice(0, typed).join('')}</span>
+          <span style={{width: 4, height: 50, background: C.accent2, marginLeft: 6, opacity: caret ? 1 : 0}} />
+        </div>
+      )}
+      {s.tagline && <div style={{position: 'absolute', left: 64, top: cy + cH + 50, width: 900, fontFamily: SERIF, fontSize: 38, lineHeight: 1.5, color: C.sub, fontWeight: 700, opacity: ramp(tf, 14, 26), letterSpacing: 2}}>{s.tagline}</div>}
+    </>
+  );
+};
+
 // 调试用：plan.debug 为真时把每段文字的位置、颜色打到浏览器日志，供 scripts/geom.mjs 自动检查遮挡/越界
 const DebugBoxes: React.FC<{f: number}> = ({f}) => {
   const [h] = React.useState(() => delayRender('geom'));
@@ -526,16 +835,16 @@ export const Film: React.FC<Plan> = (plan) => {
   return (
     <AbsoluteFill id="film-root" style={{background: C.paper}}>
       {plan.scenes.map((s: any, i: number) => {
-        const Comp = ({hook: Hook, lang: Lang, recap: Recap, outro: Outro, quiz: Quiz, flash_q: FlashQ, flash: Flash, flash_sum: FlashSum} as any)[s.type];
+        const Comp = ({hook: Hook, lang: Lang, recap: Recap, outro: Outro, quiz: Quiz, flash_q: FlashQ, flash: Flash, flash_sum: FlashSum, b_hook: BHook, b_lang: BLang, b_recap: BRecap, b_outro: BOutro} as any)[s.type];
         const first = i === 0, last = i === n - 1;
         const Ti = s.cut ? 0 : T;
         return (
           <Sequence key={i} from={first ? 0 : s.start - Ti} durationInFrames={s.dur + (first ? 0 : Ti)} layout="none">
-            <Shell T={Ti} dur={s.dur} first={first} last={last}>{(t) => <Comp s={s} plan={plan} t={t} />}</Shell>
+            <Shell T={Ti} dur={s.dur} first={first} last={last} flip={!!s.flip}>{(t) => <Comp s={s} plan={plan} t={t} />}</Shell>
           </Sequence>
         );
       })}
-      <HUD plan={plan} f={f} />
+      <AbsoluteFill style={{zIndex: 5, pointerEvents: 'none'}}><HUD plan={plan} f={f} /></AbsoluteFill>
       {plan.audio && <Audio src={staticFile(plan.audio)} />}
       {(plan as any).debug && <DebugBoxes f={f} />}
     </AbsoluteFill>

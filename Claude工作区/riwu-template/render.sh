@@ -3,12 +3,13 @@
 #   ./render.sh episodes/M006                    讲解式（完整讲解，约 45 秒）→ out/M006.mp4
 #   ./render.sh episodes/M006 --format quiz      猜选式（约 20 秒）→ out/M006_quiz.mp4
 #   ./render.sh episodes/M006 --format flash     快闪式（约 16 秒）→ out/M006_flash.mp4
+#   ./render.sh episodes/M006 --format book      图鉴式（信息同讲解式，约 45 秒，翻书页）→ out/M006_book.mp4
 #   可再加 --bgm 你的音乐.mp3
 set -euo pipefail
 cd "$(dirname "$0")"
 # 优先用项目内安装的 remotion；没有就用全局的
 RM="npx --no-install remotion"; [ -x node_modules/.bin/remotion ] || RM="remotion"
-EP="${1:?用法: ./render.sh episodes/<编号> [--format reveal|quiz|flash] [--bgm 文件]}"; shift || true
+EP="${1:?用法: ./render.sh episodes/<编号> [--format reveal|quiz|flash|book] [--bgm 文件]}"; shift || true
 FMT=""; REST=()
 while [ $# -gt 0 ]; do
   case "$1" in --format) FMT="$2"; shift 2;; *) REST+=("$1"); shift;; esac

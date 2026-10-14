@@ -13,7 +13,7 @@
 5. `word` / `reading` 照卡一字不差抄写；`parts` 把名字拆段，`t` 拼起来必须等于 `word`，`m` 和 `link` 只用卡上写着的意思，同一意思在各语言用同一个 `link`。`meaning`（字面意思，≤12 字）和 `insight`（跨语言发现，≤24 字）只能根据卡片上写着的内容归纳；归纳不出来就不写。`bridge` 默认「中」（最先、很短），`anchor` 默认「日」（主角）；`insight_langs` 填 insight 涉及的语言简称，`insight_links` 填要高亮的 link 代号。
 6. 跑 `python3 scripts/prepare.py episodes/<编号>`，打开 `build/<编号>/qc/lifts.png` 自己检查：切字、混栏、越过红线都要改框重跑，直到没有 ✖ 和 ⚠（包括 ⚠ 阅读时间：框少一点）。
 7. 跑 `./render.sh episodes/<编号>`，确认 `build/<编号>/qc/report.md` 结论是 ✓，再看 `qc/keyframes.jpg` 和 `qc/contact_2fps.jpg`，按 `docs/人工验收清单.md` 自查。
-8. 如果要另外两种版式：`./render.sh episodes/<编号> --format quiz`（猜选式）、`--format flash`（快闪式），不用改 json；同样看 `build/<编号>_quiz/qc/`、`build/<编号>_flash/qc/`。
+8. 如果要另外三种版式：`./render.sh episodes/<编号> --format quiz`（猜选式）、`--format flash`（快闪式）、`--format book`（图鉴式），不用改 json；同样看 `build/<编号>_quiz/qc/`、`build/<编号>_flash/qc/`、`build/<编号>_book/qc/`。
 9. 交付：`out/<编号>.mp4`、你的 `episode.json`、一段说明（每种语言选了哪块重点、为什么；`meaning`/`insight` 的卡片依据；卡片上发现的可疑之处）。
 
 ---
