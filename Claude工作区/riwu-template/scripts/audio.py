@@ -55,8 +55,7 @@ penta = [72, 74, 76, 79, 81, 84]
 
 total_beats = int(N / SR / beat)
 hook_end = plan["scenes"][1]["start"] / fps
-outro = [s for s in plan["scenes"] if s["type"] == "outro"][0]
-outro_t = outro["start"] / fps
+outro = next((s for s in plan["scenes"] if s["type"] == "outro"), None)
 if not a.bgm:
     for b in range(total_beats + 1):
         t = b * beat; bar = b // 4; pos = b % 4
@@ -68,7 +67,7 @@ if not a.bgm:
         if pos == 2 and not last:
             for k, m in enumerate(ch[1:]): add(keys(m2f(m + 12), 1.0, 0.45), t + beat * 0.5, 0.55, (k - 1) * 0.3)
             add(bass(m2f(roots[bar % 4] + 7), beat * 1.2), t)
-        drums = t >= hook_end * 0.55 and not last
+        df = plan.get("drums_from"); drums = t >= (hook_end * 0.55 if df is None else df) and not last
         if drums:
             if pos in (0, 2): add(kick(), t, 0.9)
             for e in (0.5,): add(hat(), t + e * beat, 1.0, 0.3)
@@ -121,7 +120,7 @@ if not a.no_sfx:
         elif k == "tick": add(tick(), t)
         elif k == "reveal": add(reveal(), t); add(thump(), t, 0.7)
         elif k == "type":
-            n = len(outro["comment"])
+            n = e.get("n") or (len(outro["comment"]) if outro else 0)
             for i in range(n): add(tclick(), t + i * 3 / fps, 1.0, rng.uniform(-0.3, 0.3))
 
 fade = int(0.5 * SR); mix[-fade:] *= np.linspace(1, 0, fade)[:, None]

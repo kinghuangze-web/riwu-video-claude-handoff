@@ -1,12 +1,28 @@
-# 日物图鉴 · 多语言物件讲解视频模板 v0.4
+# 日物图鉴 · 多语言物件讲解视频模板 v0.5
 
 输入：一组图卡（封面提问 + 每种语言一张 + 结尾互动）+ 一份 `episode.json`（只有区域框，不转写文字）
-输出：1080×1920 / 30fps / H.264 + AAC 的竖版 MP4（约 35–50 秒）+ 自检报告
+输出：1080×1920 / 30fps / H.264 + AAC 的竖版 MP4 + 自检报告。**同一份 `episode.json` 可以出三种版式**，不用重新画框：
 
 ```
-./render.sh episodes/M006            # 出片 + 自检
-./render.sh episodes/M006 --bgm x.mp3  # 用自己的背景音乐替换合成配乐
+./render.sh episodes/M006                  # 讲解式（默认）→ out/M006.mp4
+./render.sh episodes/M006 --format quiz    # 猜选式 → out/M006_quiz.mp4
+./render.sh episodes/M006 --format flash   # 快闪式 → out/M006_flash.mp4
+./render.sh episodes/M006 --bgm x.mp3      # 用自己的背景音乐替换合成配乐（三种都能用）
 ```
+
+## 三种版式
+
+| 版式 | 时长 | 适合 | 结构 |
+|---|---|---|---|
+| `reveal` 讲解式 | 约 45 秒 | 主力内容，讲清楚名字由来 | 开场提问 → 中文 → 日语（主角，带重点和回忆）→ 其他语言 → 复盘 → 结尾回忆 |
+| `quiz` 猜选式 | 约 20 秒 | 互动/评论区（「我选 B」） | 照片 +「「中文名」日语里，它叫哪一个？」+ 三选一（另两个是同系列其他期的日语名）→ 3·2·1 → 揭晓（错的项标「其实是 · 那件东西」）→ 日语名字和 1 块重点 → 复盘 →「你猜对了吗？」+ 名字回忆 |
+| `flash` 快闪式 | 约 16 秒 | 高完播、系列预告 | 全屏暗照片 + 问题 → 每种语言 4 拍硬切（白色大字 + 读音 + 金色拆段意思）→ 汇总 + 跨语言发现 + 评论引导 |
+
+- 默认版式可以在 `episode.json` 顶层写 `"format": "quiz"`；命令行 `--format` 优先。
+- 猜选式的干扰项**只取同系列其他期 `episode.json` 里同一种语言的 `word`/`reading`**（不编造），所以 `episodes/` 下至少要有另外 2 期做了主角语言的。想指定用哪几期：`"quiz": {"from": ["M.004", "M.006"]}`。选项顺序由期号固定（每次出片一样）。
+- 快闪式不显示讲解切片，只用 `word` / `reading` / `parts[].m`（没有拆段时用 `meaning`）和 `insight`。
+
+以下「片子结构」是讲解式；另两种见 `docs/画面结构与时间线.md`。
 
 ## 片子结构（固定，按节拍 100BPM 卡点）
 
@@ -58,6 +74,7 @@ scripts/prepare.py         框 → 吸附文字 → 重排 → 预渲切片 → 
 scripts/audio.py           plan → 配乐与音效 audio.wav
 scripts/qc.py              成片自检 → build/<期>/qc/report.md、keyframes.jpg、contact_2fps.jpg
 scripts/stills.mjs         调试用：批量渲静帧
+scripts/geom.mjs + geomcheck.py  调试用：自动版面检查（位置/重叠/安全区/对比度）
 scripts/grid.py            给卡片叠 0–1000 坐标网格（画框时读坐标用）
 src/                       Remotion 渲染器（只读 plan.json，无任何每期内容）
   Film.tsx                 HUD、开场、讲解页、复盘、结尾、场景推镜
@@ -65,7 +82,7 @@ src/                       Remotion 渲染器（只读 plan.json，无任何每�
 render.sh                  一条命令出片 + 自检
 ```
 
-生成物（可随时删）：`build/<期>/`（plan、切片、音频、自检）、`build/bundle/`、`out/`。
+生成物（可随时删）：`build/<期>/`、`build/<期>_quiz/`、`build/<期>_flash/`（plan、切片、音频、自检）、`build/bundle/`、`out/`。
 
 ## 调试：只渲几帧
 
@@ -79,9 +96,19 @@ node scripts/stills.mjs build/M006/plan.json build/M006/stills 0,200,500,1100   
 ## 改了模板（scripts/ src/ template/）之后怎么回归
 
 不要每次把所有期都重出一遍（一期完整渲染约 20–30 分钟）：
-1. 所有样例期只跑 `python3 scripts/prepare.py episodes/<期>`：✖/⚠ 数量不能比改之前多，`qc/lifts.png` 逐张看一眼。
-2. 挑**一期**和改动最相关的，渲几帧静帧（上面的「只渲几帧」）。
-3. 只对这一期跑完整 `./render.sh`，看 `qc/report.md` 和 `qc/keyframes.jpg`。
+1. 所有样例期只跑 `python3 scripts/prepare.py episodes/<期>`（改了 quiz/flash 就加 `--format quiz` / `--format flash`）：✖/⚠ 数量不能比改之前多，`qc/lifts.png` 逐张看一眼。
+2. 挑**一期**和改动最相关的，渲几帧静帧（上面的「只渲几帧」），并跑自动版面检查（下面）。
+3. 只对这一期、这一种版式跑完整 `./render.sh`，看 `qc/report.md` 和 `qc/keyframes.jpg`。
+
+## 自动版面检查（看不了图时也能用）
+
+```bash
+# 前三行同「只渲几帧」（prepare 加 --format；build 目录是 build/<期> 或 build/<期>_<版式>）
+node scripts/geom.mjs build/M009_quiz/plan.json build/M009_quiz/geo 21,62,108,153,203,442,561
+python3 scripts/geomcheck.py build/M009_quiz/geo
+```
+
+渲染时把画面上每段文字的位置、字号、颜色记下来，报告：越出画面、进入右侧按钮列（x>964，y 1000–1600）或底部文案区（y>1600）、文字之间互相压住（只算字形区，行高留白不算）、字比 30px 小、文字和背后像素的对比度 < 3。正在入场/退场动画中的帧会报「越界」，看静止帧的结果即可；被有意压暗的选项（猜选式揭晓后的错误项）会报对比度低，属正常。
 
 也可以 `npx remotion studio src/index.ts` 在浏览器里拖时间轴（需要在右侧 Props 里粘贴 plan.json 内容）。
 
@@ -93,7 +120,9 @@ node scripts/stills.mjs build/M006/plan.json build/M006/stills 0,200,500,1100   
 - 不校对语言内容，以卡片为准。
 - 日文假名重排时可能在词中间换行（如「ファンデーショ／ン」）。
 - 卡片照片上自带的装饰（虚线圈、放射短线）会跟着照片一起放大。
-- 卡上没写意思的名字（如 M004「スベリ」）不拆字，回忆步没有提示。
+- 卡上没写意思的名字（如 M004「スベリ」）不拆字，回忆步没有提示；快闪式这一页只有名字和读音。
+- 猜选式的干扰项来自同系列其他期，系列刚开始（少于 3 期）时出不了；干扰项和正确答案都取主角语言。
+- 快闪式每种语言只停 2.4 秒，名字很长（> 10 个字符）时字会缩到 100px 左右，读音只够扫一眼。
 
 ## 借鉴与许可
 

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """日物图鉴 模板 · 第 1 步：读 episode.json + 原图卡 → build/plan.json（全片唯一时间线）
 不改原图；所有坐标、时长、事件都在这里算好，渲染器和配乐只读 plan.json。"""
-import json, sys, hashlib, shutil, math, os
+import json, sys, hashlib, shutil, math, os, random, argparse
 from pathlib import Path
 import numpy as np
 from PIL import Image, ImageDraw, ImageFilter
@@ -476,11 +476,27 @@ def render_piece(im, src, dw, dh, path, white=False, to=None, line=False, alpha=
             out = Image.fromarray(np.clip(a / np.maximum(bg, 1) * tg, 0, 255).astype(np.uint8))
     out.save(path)
 
-def main(epdir):
+FORMATS = ("reveal", "quiz", "flash")  # 讲解式（完整讲解）/ 猜选式 / 快闪式
+
+def quiz_pool(epdir, ep, short):
+    """猜选式的干扰项：从同一系列其他期里取「同一种语言」的名字（都是真名字，只是不是这个东西的）。"""
+    out = []
+    for d in sorted(epdir.parent.iterdir()):
+        if d == epdir or d.name.startswith("_") or not (d / "episode.json").exists(): continue
+        try: e2 = json.load(open(d / "episode.json"))
+        except Exception: continue
+        for c in e2.get("cards", []):
+            if c.get("role") == "lang" and c.get("short") == short and c.get("word") and all(o["text"] != c["word"] for o in out):
+                out.append({"text": c["word"], "reading": c.get("reading", ""), "object": e2.get("object", ""), "id": e2.get("id", d.name)})
+    return out
+
+def main(epdir, fmt=None, name=None):
     global SOFT
     epdir = Path(epdir).resolve()
     ep = json.load(open(epdir / "episode.json"))
-    build = ROOT / "build" / epdir.name
+    fmt = fmt or ep.get("format", "reveal")
+    if fmt not in FORMATS: print(f"✖ format 只能是 {FORMATS}，收到 {fmt}"); sys.exit(2)
+    build = ROOT / "build" / (name or (epdir.name if fmt == "reveal" else f"{epdir.name}_{fmt}"))
     pub = build / "public"
     if pub.exists(): shutil.rmtree(pub)
     (pub / "cards").mkdir(parents=True); (pub / "pieces").mkdir()
@@ -514,7 +530,7 @@ def main(epdir):
         if len(c.get("meaning", "")) > 12: errors.append(f"{c['file']}.meaning 不超过 12 个字")
     if len(ep.get("insight", "")) > 24: errors.append("insight 不超过 24 个字")
     # ---- 结构自检：拼错字段名、简称重复、parts 对不上、引用了不存在的语言/代号 ----
-    TOP = {"id", "object", "series", "cards", "anchor", "bridge", "insight", "insight_langs", "insight_links", "recall", "notes"}
+    TOP = {"id", "object", "series", "cards", "anchor", "bridge", "insight", "insight_langs", "insight_links", "recall", "notes", "format", "quiz"}
     CARD = {"file", "role", "lang", "short", "photo", "subject", "question", "title", "name", "focus", "meaning", "word", "reading",
             "parts", "hide", "max_focus", "notes"}
     FOCUS = {"kind", "box", "label", "hold", "note", "reflow", "hide"}
@@ -744,6 +760,11 @@ def main(epdir):
     ev(f - L["transition"] // 2, "whoosh"); ev(f + B(0.6), "thump"); ev(f + B(1.4), "thump"); ev(f + B(3), "type"); ev(f + B(od) - B(1.6), "reveal")
     f += B(od)
 
+    hud_dots = True
+    if fmt != "reveal":
+        scenes, events, f, hud_dots = reformat(fmt, ep, epdir, scenes, B, L["transition"])
+        if errors: finish(build, None, inputs); return
+        ls_ = [s for s in scenes if s["type"] in ("lang", "flash")]
     # ---- 安全区：y>1000 时右侧按钮列（x>966）不放内容；底部 y>1600 是文案区 ----
     for sc in scenes:
         lifts = [("hook", sc["lift"])] if sc["type"] == "hook" else [(f"{sc.get('short','')}.{st['kind']}", st["lift"]) for st in sc.get("steps", []) if st.get("lift")]
@@ -754,9 +775,86 @@ def main(epdir):
     plan = {"episode": ep["id"], "object": ep.get("object", ""), "series": ep["series"], "fps": FPS, "width": CW, "height": CH,
             "bpm": STYLE["bpm"], "beat_frames": B(1), "frames": f, "style": STYLE, "transition": L["transition"],
             "langs": [{"short": s["short"], "lang": s["lang"], "start": s["start"], "dur": s["dur"]} for s in ls_],
-            "scenes": scenes, "events": events, "inputs": inputs}
+            "scenes": scenes, "events": events, "inputs": inputs, "format": fmt, "hud_dots": hud_dots,
+            "drums_from": 0.0 if fmt == "flash" else None}
     finish(build, plan, inputs)
     qc_lifts(build, plan)
+
+def reformat(fmt, ep, epdir, scenes, B, TR):
+    """在「讲解式」算好的场景（名字排版、切片、复盘行）基础上，重新编排成别的版式。不新增任何卡片外的知识。"""
+    TX = STYLE["text"]
+    hook = scenes[0]; langs = [s for s in scenes if s["type"] == "lang"]
+    recap = next(s for s in scenes if s["type"] == "recap"); outro = next(s for s in scenes if s["type"] == "outro")
+    A = next(s for s in langs if s["anchor"]); Bg = next((s for s in langs if s["bridge"]), None)
+    out, evs, f = [], [], 0
+    def ev(t, k, **kw): evs.append({"f": int(t), "kind": k, **kw})
+    def put(sc, d):
+        nonlocal f
+        sc = dict(sc); sc["start"] = f; sc["dur"] = d; out.append(sc); f += d; return sc
+    if fmt == "quiz":
+        reg = STYLE["lang_font"].get(A["short"], "SC")
+        pool = [p for p in quiz_pool(epdir, ep, A["short"]) if p["text"] != A["word"]["text"]]
+        want = ep.get("quiz", {}).get("from")  # 可选：指定干扰项来自哪几期（id）
+        if want: pool = [p for p in pool if p["id"] in want]
+        if len(pool) < 2:
+            errors.append(f"猜选式需要同系列另外至少 2 期做好的 episode.json（有「{A['short']}」的 word）当干扰项，现在只有 {len(pool)} 个"); return out, evs, f, False
+        rnd = random.Random(ep["id"] + "/quiz")
+        opts = [{"text": A["word"]["text"], "reading": A["reading"], "ok": True, "what": ""}] + \
+               [{"text": p["text"], "reading": p["reading"], "ok": False, "what": f'{p["object"]} · {p["id"]}' if p["object"] else p["id"]} for p in rnd.sample(pool, 2)]
+        rnd.shuffle(opts)
+        for o in opts:
+            o["family"] = f"Noto Serif CJK {reg}"
+            o["fs"] = int(min(88, 600 / max(1, (tw(o["text"], "Black", reg, 100) + 2 * len(o["text"])) / 100)))
+        q1 = f'「{Bg["word"]["text"]}」' if Bg else f'「{ep.get("object", "")}」'
+        q2 = TX["quiz_q"].format(lang=A["lang"])
+        qfs = int(min(80, *(840 / max(1, (tw(q, "Black", "SC", 100) + 2 * len(q)) / 100) for q in (q1, q2))))  # 问题两行：右边不进按钮区、底部不贴选项
+        nb = 10
+        put({"type": "quiz", "card": hook["card"], "size": hook["size"], "photo": hook["photo"], "subject": hook["subject"], "q": [q1, q2], "qfs": qfs,
+             "options": opts, "beat": B(1), "t_opts": [B(1), B(1.5), B(2)], "t_count": B(3), "t_reveal": B(6), "countText": TX["guess"]}, B(nb))
+        ev(0, "start")
+        for k in range(3): ev(B(1 + 0.5 * k), "pop")
+        for k in range(3): ev(B(3 + k), "tick")
+        ev(B(6), "reveal")
+        # 讲解：只讲主角语言的名字 + 第一块重点（不再回忆，因为前面已经「猜」过一次）
+        st = [dict(x) for x in A["steps"] if x["kind"] != "recall"][:2]
+        t = 0
+        for x in st: x["start"] = t; t += x["dur"]
+        a = put(dict(A, steps=st, index=0), t); ev(a["start"] - TR // 2, "whoosh"); ev(a["start"], "thump")
+        for x in st[1:]: ev(a["start"] + x["start"], "pop")
+        r = put(recap, recap["dur"]); ev(r["start"] - TR // 2, "whoosh")
+        for k in range(len(r["items"])): ev(r["start"] + 4 + 5 * k, "pop")
+        if r["insight"]: ev(r["start"] + r["t_insight"], "reveal")
+        o = put(dict(outro, lines=TX["quiz_outro"], comment=TX["quiz_comment"]), outro["dur"])
+        ev(o["start"] - TR // 2, "whoosh"); ev(o["start"] + B(0.6), "thump"); ev(o["start"] + B(1.4), "thump"); ev(o["start"] + B(3), "type", n=len(TX["quiz_comment"]))
+        ev(o["start"] + o["t_reveal"], "reveal")
+        return out, evs, f, False
+    # ---- 快闪式：每种语言 4 拍，硬切卡点；最后一句跨语言发现 ----
+    put({"type": "flash_q", "cut": True, "card": hook["card"], "size": hook["size"], "photo": hook["photo"], "subject": hook["subject"], "lift": hook["lift"], "beat": B(1)}, B(3))
+    ev(0, "start")
+    for i, s in enumerate(langs):
+        w = s["word"]; reg = w["family"].split()[-1]
+        ffs = int(min(210, 890 / max(1, (tw(w["text"], "Black", reg, 100) + 2 * len(w["text"])) / 100)))  # 右边不过 964（平台按钮列）
+        ms = [p["m"] for p in w["parts"] if p.get("m")] if w["show"] else []
+        chips = ms or ([s["meaning"]] if s["meaning"] else [])
+        cfs = 56
+        while cfs > 36 and sum(tw(m, "Black", "SC", cfs) + cfs * 1.0 + 6 for m in chips) + (len(chips) - 1) * (cfs + 28) > 890: cfs -= 4
+        sc = put({"type": "flash", "cut": True, "card": s["card"], "size": s["size"], "photo": s["photo"], "subject": s["subject"], "lang": s["lang"], "short": s["short"],
+                  "index": i, "n": len(langs), "word": w, "ffs": ffs, "cfs": cfs, "reading": s["reading"], "parts_m": ms, "meaning": "" if ms else s["meaning"],
+                  "anchor": s["anchor"], "beat": B(1)}, B(4))
+        ev(sc["start"], "reveal" if s["anchor"] else "thump"); ev(sc["start"] + B(1), "pop")
+    its = []
+    for it in recap["items"]:
+        reg = it["word"]["family"].split()[-1]
+        its.append(dict(it, sfs=int(min(80, 720 / max(1, (tw(it["word"]["text"], "Black", reg, 100) + 2 * len(it["word"]["text"])) / 100)))))
+    n_ = len(its); step = int(min(128, (600) / max(1, n_)))
+    ins = recap["insight"] or ""
+    ifs = int(max(44, min(64, 860 / max(1, (tw(ins, "Black", "SC", 100) + 32) / 100))))  # 尽量一行放下；放不下时最小 44px 再换行
+    sm = put({"type": "flash_sum", "step": step, "ifs": ifs, "cut": True, "card": outro["card"], "size": outro["size"], "photo": outro["photo"], "subject": outro["subject"],
+              "items": its, "insight": recap["insight"], "beat": B(1), "t_insight": B(2.5), "comment": TX["flash_comment"], "tagline": TX["tagline"]}, B(7))
+    ev(sm["start"], "thump")
+    for k in range(len(sm["items"])): ev(sm["start"] + 3 + 4 * k, "pop")
+    if sm["insight"]: ev(sm["start"] + sm["t_insight"], "reveal")
+    return out, evs, f, True
 
 def finish(build, plan, inputs):
     rep = {"errors": errors, "warnings": warns}
@@ -773,7 +871,7 @@ def qc_lifts(build, plan):
     tiles = []
     for s in plan["scenes"]:
         lifts = []
-        if s["type"] == "hook": lifts = [("开场", s["lift"])]
+        if s["type"] in ("hook", "flash_q"): lifts = [("开场", s["lift"])]
         if s["type"] == "lang": lifts = [(f'{s["short"]}·{st["label"]}', st["lift"]) for st in s["steps"] if st.get("lift")]
         for name, lf in lifts:
             cv = Image.new("RGB", (CW, CH), (60, 48, 38)); d = ImageDraw.Draw(cv)
@@ -788,10 +886,14 @@ def qc_lifts(build, plan):
                 d.text((s["hero_x"], s["y"]["W"] - sh_), wd["text"], font=_FC[("Black", reg, int(wd["fs"]))], fill=(244, 238, 227))
             d.text((20, 20), f"{name}  zoom {lf['zoom']:.2f}  text {lf['text_px']:.0f}px", fill=(255, 220, 160))
             tiles.append(cv.resize((360, 640)))
+    if not tiles: return
     cols = 5; rows = math.ceil(len(tiles) / cols)
     sheet = Image.new("RGB", (360 * cols, 640 * rows), "white")
     for i, t in enumerate(tiles): sheet.paste(t, ((i % cols) * 360, (i // cols) * 640))
     sheet.save(build / "qc" / "lifts.png")
 
 if __name__ == "__main__":
-    main(sys.argv[1] if len(sys.argv) > 1 else ROOT / "episodes/M006")
+    ap = argparse.ArgumentParser(); ap.add_argument("episode", nargs="?", default=str(ROOT / "episodes/M006"))
+    ap.add_argument("--format", choices=FORMATS); ap.add_argument("--name")
+    a_ = ap.parse_args()
+    main(a_.episode, a_.format, a_.name)

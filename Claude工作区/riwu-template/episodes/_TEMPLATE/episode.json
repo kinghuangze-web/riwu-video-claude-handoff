@@ -2,6 +2,7 @@
  "id": "M.007",
  "object": "物件中文名",
  "series": {"name": "日物图鉴", "tag": "MULTI LANGUAGE INDEX"},
+ "format": "reveal",
  "bridge": "中",
  "anchor": "日",
  "cards": [

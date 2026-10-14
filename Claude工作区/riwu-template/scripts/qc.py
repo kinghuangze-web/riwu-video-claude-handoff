@@ -6,7 +6,7 @@ import numpy as np
 from PIL import Image
 
 ep, mp4 = Path(sys.argv[1]), Path(sys.argv[2])
-build = Path("build") / ep.name; qc = build / "qc"; qc.mkdir(parents=True, exist_ok=True)
+build = Path("build") / (sys.argv[3] if len(sys.argv) > 3 else ep.name); qc = build / "qc"; qc.mkdir(parents=True, exist_ok=True)
 plan = json.load(open(build / "plan.json"))
 R = []  # (ok, 项, 说明)
 def chk(ok, item, msg): R.append(("✓" if ok is True else ("⚠" if ok is None else "✖"), item, msg))

@@ -1,6 +1,6 @@
 // 日物图鉴 · 多语言物件片 渲染器（原生 9:16 全屏）。只读 plan.json；没有任何每期写死的内容。
 import React from 'react';
-import {AbsoluteFill, Audio, Img, Sequence, staticFile, useCurrentFrame} from 'remotion';
+import {AbsoluteFill, Audio, Img, Sequence, continueRender, delayRender, staticFile, useCurrentFrame} from 'remotion';
 import {Chip, Cover, Panel, Paper, PhotoFade, SERIF, Sparks, clamp, inOut, lerp, ramp, sp} from './kit';
 import type {Plan, Rect} from './types';
 
@@ -25,7 +25,7 @@ const HUD: React.FC<{plan: Plan; f: number}> = ({plan, f}) => {
         fontFamily: SERIF, fontWeight: 900, fontSize: 36, color: C.ink, letterSpacing: 4, boxShadow: '0 6px 18px rgba(20,12,6,0.18)'}}>
         {plan.series.name}<span style={{fontWeight: 700, fontSize: 28, color: C.sub, marginLeft: 16, letterSpacing: 2}}>{plan.episode}</span>
       </div>
-      {langs.map((l, i) => {
+      {plan.hud_dots !== false && langs.map((l, i) => {
         const on = i === act, done = f >= l.start + l.dur - 4;
         const p = on ? sp(f - (l.start - 4), {damping: 10, stiffness: 300}) : 1;
         return <div key={i} style={{position: 'absolute', left: x0 + i * (d + gap), top: y, width: d, height: d, borderRadius: d / 2, boxSizing: 'border-box',
@@ -41,6 +41,10 @@ const HUD: React.FC<{plan: Plan; f: number}> = ({plan, f}) => {
 
 // 场景外壳：相邻场景重叠 T 帧，新场景从右推入、旧场景同步推出 → 没有空帧
 const Shell: React.FC<{T: number; dur: number; first: boolean; last: boolean; children: (t: number) => React.ReactNode}> = ({T, dur, first, last, children}) => {
+  if (T === 0) {  // 快闪式：硬切，不推镜
+    const t0 = useCurrentFrame();
+    return <AbsoluteFill style={{overflow: 'hidden'}}><Paper />{children(t0)}</AbsoluteFill>;
+  }
   const t = useCurrentFrame() - (first ? 0 : T);
   const kin = first ? 1 : ramp(t, -T, 0, inOut);
   const kout = last ? 0 : ramp(t, dur - T, dur, inOut);
@@ -105,13 +109,13 @@ const Word: React.FC<{w: any; C: any; fs: number; blur?: number; hl?: number[]; 
       const m = sg.p >= 0 ? (w.parts[sg.p] || {}).m : '';
       return (
         <span key={i} style={{position: 'relative', display: 'inline-block', whiteSpace: 'pre'}}>
-          <span style={{filter: blur > 0.3 ? `blur(${blur}px)` : undefined, color: on && tint ? C.accent2 : C.ink,
+          <span style={{filter: blur > 0.3 ? `blur(${blur}px)` : undefined, color: on && tint ? C.accent_text : C.ink,  // 金色文字一律用 accent_text（比 accent2 深一档），奶白底上看得清
             background: on ? `linear-gradient(transparent 70%, ${C.accent} 70%, ${C.accent} 94%, transparent 94%)` : undefined, backgroundSize: on ? `${100 * g}% 100%` : undefined, backgroundRepeat: 'no-repeat'}}>{sg.t}</span>
           {parts && m && (
             <>
               <span style={{position: 'absolute', left: '8%', width: '84%', top: '98%', height: 5, borderRadius: 3, background: C.accent2, opacity: 0.55 * pmO}} />
               <span style={{position: 'absolute', left: '50%', top: 'calc(98% + 12px)', transform: 'translateX(-50%)', fontFamily: SERIF, fontWeight: 900, fontSize: pmFs, lineHeight: 1, letterSpacing: 2,
-                color: on ? C.accent2 : '#6B5442', whiteSpace: 'nowrap', opacity: pmO}}>{m}</span>
+                color: on ? C.accent_text : '#6B5442', whiteSpace: 'nowrap', opacity: pmO}}>{m}</span>
             </>
           )}
         </span>
@@ -184,16 +188,16 @@ const Lang: React.FC<{s: any; plan: Plan; t: number}> = ({s, plan, t}) => {
       {/* 又见面了：这一段和前面哪种语言的哪一段是同一个意思 */}
       {s.links && s.links.length > 0 && Y.K != null && t >= 14 && (
         <div style={{position: 'absolute', left: hx, top: at(Y.K), display: 'flex', alignItems: 'flex-start', gap: 18, opacity: clamp(kp * 2), transform: `translateX(${-50 * (1 - kp)}px) scale(${s.k_scale})`, transformOrigin: '0% 0%', whiteSpace: 'nowrap'}}>
-          <div style={{marginTop: 8, background: C.accent2, color: '#fff', fontFamily: SERIF, fontWeight: 900, fontSize: 34, padding: '4px 18px', borderRadius: 30, letterSpacing: 3}}>{TX.link}</div>
+          <div style={{marginTop: 8, background: C.accent_text, color: '#fff', fontFamily: SERIF, fontWeight: 900, fontSize: 34, padding: '4px 18px', borderRadius: 30, letterSpacing: 3}}>{TX.link}</div>
           <div style={{display: 'flex', flexDirection: 'column', gap: 4}}>
             {s.links.map((l: any, i: number) => (
               <div key={i} style={{height: 58, display: 'flex', alignItems: 'center', gap: 12, fontFamily: famOf(w.family), fontWeight: 900, fontSize: 44, color: C.ink, opacity: clamp((t - 18 - i * 6) / 6)}}>
-                <span style={{color: C.accent2}}>{l.t}</span>
+                <span style={{color: C.accent_text}}>{l.t}</span>
                 {l.prev.map((q: any, j: number) => (
                   <React.Fragment key={j}>
                     <span style={{color: C.sub, fontWeight: 700}}>＝</span>
                     <span>{q.t}</span>
-                    <span style={{fontFamily: SERIF, fontSize: 26, fontWeight: 900, color: C.paper, background: C.sub, borderRadius: 14, padding: '1px 9px'}}>{q.short}</span>
+                    <span style={{fontFamily: SERIF, fontSize: 30, fontWeight: 900, color: C.paper, background: C.sub, borderRadius: 15, padding: '1px 10px'}}>{q.short}</span>
                   </React.Fragment>
                 ))}
               </div>
@@ -328,24 +332,212 @@ const Outro: React.FC<{s: any; plan: Plan; t: number}> = ({s, plan, t}) => {
   );
 };
 
+
+// ================= 猜选式：同一系列里的 3 个真名字，猜哪个是它 =================
+const Ring: React.FC<{C: any; t: number; t0: number; t1: number; B: number; cx: number; cy: number; R?: number}> = ({C, t, t0, t1, B, cx, cy, R = 70}) => {
+  if (t < t0 || t >= t1 + 2) return null;
+  const cnt = Math.min(2, Math.floor((t - t0) / B)), cf = (t - t0) - cnt * B;
+  return (
+    <>
+      <svg style={{position: 'absolute', left: cx - R - 10, top: cy - R - 10}} width={2 * R + 20} height={2 * R + 20}>
+        <circle cx={R + 10} cy={R + 10} r={R} fill={C.paper} stroke={C.paper2} strokeWidth={8} />
+        <circle cx={R + 10} cy={R + 10} r={R} stroke={C.accent2} strokeWidth={10} fill="none" strokeLinecap="round"
+          strokeDasharray={2 * Math.PI * R} strokeDashoffset={2 * Math.PI * R * ramp(t, t0, t1, (x) => x)} transform={`rotate(-90 ${R + 10} ${R + 10})`} />
+      </svg>
+      <div style={{position: 'absolute', left: cx - R, top: cy - R, width: 2 * R, height: 2 * R, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: SERIF, fontWeight: 900, fontSize: 88, color: C.ink,
+        transform: `scale(${lerp(1.6, 1, sp(cf, {damping: 9, stiffness: 320}))})`}}>{3 - cnt}</div>
+    </>
+  );
+};
+const Quiz: React.FC<{s: any; plan: Plan; t: number}> = ({s, plan, t}) => {
+  const C = plan.style.colors, TX = plan.style.text, B = s.beat;
+  const rv = t - s.t_reveal, on = rv >= 0;
+  const PH = 800;
+  const z = 1.12 - 0.06 * ramp(t, 0, s.dur, (x) => x) + (on ? 0.04 * Math.sin(Math.PI * ramp(rv, 0, 10)) : 0);
+  const oy = 1040, oh = 168, og = 18, qy = 800;
+  const shake = !on && t > s.t_count + 2 * B ? Math.sin(t * 2.2) * 2 : 0;
+  return (
+    <>
+      <Cover file={s.card} size={s.size} crop={s.photo} box={[0, 0, 1080, PH]} focus={s.subject} z={z} win={[330, 700]} zfit={1.6} />
+      <PhotoFade h={PH} C={C} />
+      {/* 问题：第 0 帧就在 */}
+      <div style={{position: 'absolute', left: 64, top: qy, fontFamily: SERIF, fontWeight: 900, fontSize: s.qfs, lineHeight: 1.22, color: C.ink, letterSpacing: 2, whiteSpace: 'nowrap'}}>
+        <div><span style={{background: `linear-gradient(transparent 62%, ${C.accent} 62%, ${C.accent} 92%, transparent 92%)`}}>{s.q[0]}</span></div>
+        <div>{s.q[1]}</div>
+      </div>
+      <Ring C={C} t={t} t0={s.t_count} t1={s.t_reveal} B={B} cx={964 - 70} cy={qy - 100} />
+      {s.options.map((o: any, i: number) => {
+        const f = t - s.t_opts[i];
+        if (f < 0) return null;
+        const p = sp(f, {damping: 12, stiffness: 260});
+        const y = oy + i * (oh + og);
+        const g = on ? sp(rv - (o.ok ? 0 : 4), {damping: 11, stiffness: 240}) : 0;
+        const dim = on && !o.ok ? 0.5 * clamp(g) : 0;
+        const L_ = 'ABC'[i];
+        return (
+          <div key={i} style={{position: 'absolute', inset: 0, opacity: clamp(p * 2.5) * (1 - dim), transform: `translateX(${-120 * (1 - p) + (o.ok ? 0 : shake)}px)`}}>
+            <div style={{position: 'absolute', left: 64, top: y, width: 900, height: oh, borderRadius: 26, background: '#FBF7F0', boxShadow: '0 16px 36px rgba(30,20,10,0.16)',
+              outline: o.ok && on ? `${7 * clamp(g)}px solid ${C.accent2}` : undefined, transform: `scale(${o.ok && on ? lerp(1, 1.04, clamp(g)) : 1})`, transformOrigin: '50% 50%'}} />
+            <div style={{position: 'absolute', left: 92, top: y + oh / 2 - 46, width: 92, height: 92, borderRadius: 46, background: o.ok && on ? C.accent2 : C.ink, color: o.ok && on ? C.ink : C.paper,
+              display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: SERIF, fontWeight: 900, fontSize: 54}}>{o.ok && on ? '✓' : L_}</div>
+            <div style={{position: 'absolute', left: 214, top: y + 16, fontFamily: famOf(o.family), fontWeight: 900, fontSize: o.fs, lineHeight: 1.1, color: C.ink, whiteSpace: 'nowrap', letterSpacing: 2,
+              textDecoration: on && !o.ok && g > 0.5 ? `line-through ${C.sub}` : undefined}}>{o.text}</div>
+            <div style={{position: 'absolute', left: 218, top: y + oh - 56, fontFamily: famOf(o.family), fontWeight: 700, fontSize: 34, color: C.sub, whiteSpace: 'nowrap', letterSpacing: 2, opacity: on && !o.ok ? 1 - clamp(g * 2) : 1}}>{o.reading}</div>
+            {on && !o.ok && <div style={{position: 'absolute', left: 218, top: y + oh - 58, fontFamily: SERIF, fontWeight: 900, fontSize: 36, color: C.ink, whiteSpace: 'nowrap', opacity: clamp(g * 2 - 1)}}>{TX.quiz_no} · {o.what}</div>}
+            {on && o.ok && <Chip text={TX.quiz_ok} right={130} y={y + oh - 52} f={rv - 2} C={C} size={42} dark rot={4} />}
+            {on && o.ok && <Sparks x={140} y={y + 10} f={rv} r={70} color={C.accent2} n={7} spread={26} />}
+          </div>
+        );
+      })}
+      {on && <div style={{position: 'absolute', inset: 0, background: '#fff', opacity: 0.55 * (1 - ramp(rv, 0, 8))}} />}
+      {t >= s.t_count && !on && <Chip text={s.countText} x={64} y={qy - 96} f={t - s.t_count} C={C} size={46} dark />}
+    </>
+  );
+};
+
+// ================= 快闪式：每种语言 4 拍，照片全屏 + 白色大字，卡点硬切 =================
+const Dark: React.FC<{s: any; z: number; win?: [number, number]; blur?: number; k?: number}> = ({s, z, win, blur = 0, k = 0.7}) => (
+  <>
+    <Cover file={s.card} size={s.size} crop={s.photo} box={[0, 0, 1080, 1920]} focus={s.subject} z={z} win={win} zfit={1.8} imgStyle={blur ? {filter: `blur(${blur}px)`} : undefined} />
+    <div style={{position: 'absolute', inset: 0, background: `linear-gradient(rgba(20,12,6,0.40), rgba(20,12,6,0.05) 30%, rgba(20,12,6,${k * 0.9}) 56%, rgba(20,12,6,${k}) 100%)`}} />
+  </>
+);
+const Punch: React.FC<{t: number}> = ({t}) => t < 6 ? <div style={{position: 'absolute', inset: 0, background: '#fff', opacity: 0.7 * (1 - t / 6)}} /> : null;
+const FlashQ: React.FC<{s: any; plan: Plan; t: number}> = ({s, plan, t}) => {
+  const C = plan.style.colors;
+  const z = 1.5 - 0.35 * ramp(t, 0, s.dur, (x) => x);
+  return (
+    <>
+      <Dark s={s} z={z} win={[330, 1100]} k={0.35} />
+      <Panel lift={s.lift} f={t + 30} dur={1e6} exit={false} C={C} />
+      {[[150, 520, -12], [820, 700, 10]].map((q, i) => {
+        const p = sp(t - 2 - i * 4, {damping: 8, stiffness: 300});
+        return <div key={i} style={{position: 'absolute', left: q[0], top: q[1], fontFamily: SERIF, fontWeight: 900, fontSize: 170, color: C.paper, opacity: clamp(p),
+          transform: `scale(${p}) rotate(${q[2]}deg)`, textShadow: '0 8px 30px rgba(0,0,0,0.45)'}}>?</div>;
+      })}
+    </>
+  );
+};
+const Flash: React.FC<{s: any; plan: Plan; t: number}> = ({s, plan, t}) => {
+  const C = plan.style.colors, B = s.beat, w = s.word;
+  const z = lerp(1.32, 1.08, sp(t, {damping: 20, stiffness: 120})) + 0.04 * ramp(t, 0, s.dur, (x) => x);
+  const hp = sp(t, {damping: 11, stiffness: 300});
+  const mp = sp(t - B, {damping: 12, stiffness: 260});
+  const y0 = 1060;
+  const num = `${String(s.index + 1).padStart(2, '0')}/${String(s.n).padStart(2, '0')}`;
+  return (
+    <>
+      <Dark s={s} z={z} win={[340, 980]} />
+      <div style={{position: 'absolute', left: 64, top: y0 - 110, display: 'flex', alignItems: 'center', gap: 22}}>
+        <div style={{background: s.anchor ? C.accent : C.paper, color: C.ink, fontFamily: SERIF, fontWeight: 900, fontSize: 52, padding: '6px 28px', borderRadius: 50, letterSpacing: 4,
+          transform: `scale(${lerp(1.5, 1, hp)})`, transformOrigin: '0% 50%'}}>{s.lang}</div>
+        <div style={{fontFamily: SERIF, fontWeight: 900, fontSize: 40, color: 'rgba(251,247,240,0.7)', letterSpacing: 4}}>{num}</div>
+      </div>
+      <div style={{position: 'absolute', left: 64, top: y0, opacity: clamp(hp * 3), transform: `scale(${lerp(1.35, 1, hp)})`, transformOrigin: '0% 50%',
+        fontFamily: famOf(w.family), fontWeight: 900, fontSize: s.ffs, lineHeight: 1.15, letterSpacing: 2, color: '#FFFDF8', whiteSpace: 'nowrap', textShadow: '0 10px 40px rgba(0,0,0,0.5)'}}>{w.text}</div>
+      {s.reading && <div style={{position: 'absolute', left: 70, top: y0 + s.ffs * 1.2 + 6, fontFamily: famOf(w.family), fontWeight: 700, fontSize: 44, color: 'rgba(251,247,240,0.86)', letterSpacing: 3, whiteSpace: 'nowrap',
+        opacity: clamp(sp(t - 4) * 2)}}>{s.reading}</div>}
+      {(s.parts_m.length > 0 || s.meaning) && t >= B - 2 && (
+        <div style={{position: 'absolute', left: 64, top: y0 + s.ffs * 1.2 + 88, display: 'flex', alignItems: 'center', gap: 14, opacity: clamp(mp * 2), transform: `translateY(${30 * (1 - mp)}px)`}}>
+          {(s.parts_m.length ? s.parts_m : [s.meaning]).map((m: string, i: number) => (
+            <React.Fragment key={i}>
+              {i > 0 && <span style={{fontFamily: SERIF, fontWeight: 900, fontSize: s.cfs * 0.9, color: C.accent}}>＋</span>}
+              <span style={{background: C.accent, color: C.ink, fontFamily: SERIF, fontWeight: 900, fontSize: s.cfs, padding: `4px ${s.cfs * 0.43}px`, borderRadius: 16, letterSpacing: 3,
+                transform: `scale(${lerp(1.4, 1, sp(t - B - i * 4, {damping: 10, stiffness: 300}))})`}}>{m}</span>
+            </React.Fragment>
+          ))}
+        </div>
+      )}
+      <Punch t={t} />
+    </>
+  );
+};
+const FlashSum: React.FC<{s: any; plan: Plan; t: number}> = ({s, plan, t}) => {
+  const C = plan.style.colors, ti = t - s.t_insight;
+  const n = s.items.length, step = s.step, y0 = 560;
+  const yI = y0 + n * step + 40;
+  return (
+    <>
+      <Dark s={s} z={1.15 - 0.08 * ramp(t, 0, s.dur, (x) => x)} blur={4} k={0.8} />
+      <div style={{position: 'absolute', inset: 0, background: 'rgba(20,12,6,0.5)'}} />  {/* 汇总页字多：整体再压暗，金色高亮字在亮照片上也看得清 */}
+      {s.items.map((it: any, i: number) => {
+        const p = sp(t - 3 - i * 4, {damping: 12, stiffness: 280});
+        const y = y0 + i * step;
+        return (
+          <div key={i} style={{position: 'absolute', left: 64, top: y, display: 'flex', alignItems: 'center', gap: 26, opacity: clamp(p * 2.5), transform: `translateX(${-100 * (1 - p)}px)`}}>
+            <div style={{width: 120, height: 76, borderRadius: 38, background: it.anchor ? C.accent : 'rgba(251,247,240,0.92)', color: C.ink, fontFamily: SERIF, fontWeight: 900, fontSize: 32, letterSpacing: 3,
+              display: 'flex', alignItems: 'center', justifyContent: 'center'}}>{it.lang}</div>
+            <div>
+              <div style={{whiteSpace: 'nowrap', fontFamily: famOf(it.word.family), fontWeight: 900, fontSize: Math.min(it.sfs, step * 0.62), color: '#FFFDF8', letterSpacing: 2, textShadow: '0 4px 18px rgba(0,0,0,0.55)'}}>
+                {it.word.segs.map((sg: any, k: number) => {
+                  const on = it.hlp.includes(sg.p) && ti >= 0;
+                  return <span key={k} style={{color: on ? C.accent : '#FFFDF8', whiteSpace: 'pre'}}>{sg.t}</span>;
+                })}
+              </div>
+            </div>
+          </div>
+        );
+      })}
+      {s.insight && ti >= 0 && (() => {
+        const p = sp(ti, {damping: 10, stiffness: 260});
+        return <div style={{position: 'absolute', left: 64, top: yI, width: 900, fontFamily: SERIF, fontWeight: 900, fontSize: s.ifs || 64, lineHeight: 1.3, color: C.ink, opacity: clamp(p * 2), transform: `scale(${lerp(1.25, 1, p)})`, transformOrigin: '0% 50%'}}>
+          <span style={{background: C.accent, padding: '2px 16px', borderRadius: 10, boxDecorationBreak: 'clone', WebkitBoxDecorationBreak: 'clone'}}>{s.insight}</span>
+        </div>;
+      })()}
+      {t >= s.t_insight + 2 * s.beat && (
+        <div style={{position: 'absolute', left: 64, top: yI + (s.ifs || 64) * 1.3 * (s.insight ? 1 : 0) + 70, fontFamily: SERIF, fontWeight: 900, fontSize: 50, color: C.paper, opacity: clamp(sp(t - s.t_insight - 2 * s.beat) * 2), letterSpacing: 2}}>
+          {s.comment}<span style={{marginLeft: 16, color: C.accent}}>↓</span>
+        </div>
+      )}
+      <Punch t={t} />
+    </>
+  );
+};
+
+// 调试用：plan.debug 为真时把每段文字的位置、颜色打到浏览器日志，供 scripts/geom.mjs 自动检查遮挡/越界
+const DebugBoxes: React.FC<{f: number}> = ({f}) => {
+  const [h] = React.useState(() => delayRender('geom'));
+  React.useEffect(() => {
+    (document as any).fonts.ready.then(() => requestAnimationFrame(() => {
+      const out: any[] = [];
+      const R = (document.getElementById('film-root') as any).getBoundingClientRect();
+      document.querySelectorAll('div,span').forEach((el: any) => {
+        const txt = Array.from(el.childNodes).filter((n: any) => n.nodeType === 3).map((n: any) => n.textContent).join('').trim();
+        if (!txt) return;
+        const r = el.getBoundingClientRect();
+        let op = 1, e: any = el;
+        while (e) { op *= parseFloat(getComputedStyle(e).opacity || '1'); e = e.parentElement; }
+        if (op < 0.05 || r.width < 1) return;
+        const cs = getComputedStyle(el);
+        out.push({t: txt.slice(0, 40), x: Math.round(r.left - R.left), y: Math.round(r.top - R.top), w: Math.round(r.width), h: Math.round(r.height), c: cs.color, fs: cs.fontSize, op: +op.toFixed(2)});
+      });
+      console.log('GEOM' + JSON.stringify({f, boxes: out}));
+      continueRender(h);
+    }));
+  }, [f]);
+  return null;
+};
+
 export const Film: React.FC<Plan> = (plan) => {
   const f = useCurrentFrame();
   const C = plan.style.colors;
   const T = plan.transition || 8;
   const n = plan.scenes.length;
   return (
-    <AbsoluteFill style={{background: C.paper}}>
+    <AbsoluteFill id="film-root" style={{background: C.paper}}>
       {plan.scenes.map((s: any, i: number) => {
-        const Comp = ({hook: Hook, lang: Lang, recap: Recap, outro: Outro} as any)[s.type];
+        const Comp = ({hook: Hook, lang: Lang, recap: Recap, outro: Outro, quiz: Quiz, flash_q: FlashQ, flash: Flash, flash_sum: FlashSum} as any)[s.type];
         const first = i === 0, last = i === n - 1;
+        const Ti = s.cut ? 0 : T;
         return (
-          <Sequence key={i} from={first ? 0 : s.start - T} durationInFrames={s.dur + (first ? 0 : T)} layout="none">
-            <Shell T={T} dur={s.dur} first={first} last={last}>{(t) => <Comp s={s} plan={plan} t={t} />}</Shell>
+          <Sequence key={i} from={first ? 0 : s.start - Ti} durationInFrames={s.dur + (first ? 0 : Ti)} layout="none">
+            <Shell T={Ti} dur={s.dur} first={first} last={last}>{(t) => <Comp s={s} plan={plan} t={t} />}</Shell>
           </Sequence>
         );
       })}
       <HUD plan={plan} f={f} />
       {plan.audio && <Audio src={staticFile(plan.audio)} />}
+      {(plan as any).debug && <DebugBoxes f={f} />}
     </AbsoluteFill>
   );
 };

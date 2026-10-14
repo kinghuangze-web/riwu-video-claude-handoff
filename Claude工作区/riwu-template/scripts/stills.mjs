@@ -1,9 +1,10 @@
 // 用同一个浏览器批量渲静帧：node scripts/stills.mjs <plan.json> <outdir> f1,f2,...
 import {renderStill, selectComposition, openBrowser} from '@remotion/renderer';
 import fs from 'node:fs';
+import {fileURLToPath} from 'node:url';
 const [planPath, outDir, frames] = process.argv.slice(2);
 const props = JSON.parse(fs.readFileSync(planPath, 'utf8'));
-const serveUrl = new URL('../build/bundle', import.meta.url).pathname;
+const serveUrl = fileURLToPath(new URL('../build/bundle', import.meta.url));  // 路径里有中文时也能用
 fs.mkdirSync(outDir, {recursive: true});
 const browser = await openBrowser('chrome', {browserExecutable: process.env.CHROMIUM_PATH || null, chromiumOptions: {gl: 'swangle'}});
 const composition = await selectComposition({serveUrl, id: 'Film', inputProps: props, puppeteerInstance: browser});

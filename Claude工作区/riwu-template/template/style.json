@@ -35,7 +35,7 @@
   "sub_text_px": 48,
   "photo_band": 760,
   "hero_x": 64,
-  "hero_w": 952,
+  "hero_w": 900,
   "hero_h": 200,
   "meaning_h": 78,
   "content_bottom": 1580,
@@ -58,7 +58,8 @@
   "accent2": "#C9954B",
   "sun": "#E9C68C",
   "dim": "rgba(28,20,14,0.62)",
-  "card": "#FBF7F0"
+  "card": "#FBF7F0",
+  "accent_text": "#9A6522"
  },
  "fonts": {
   "serif": "Noto Serif CJK SC",
@@ -77,7 +78,16 @@
   "answer": "重点记",
   "bridge": "你熟悉的叫法",
   "recall": "还记得它叫什么吗？",
-  "link": "又见面了"
+  "link": "又见面了",
+  "quiz_q": "{lang}里，它叫哪一个？",
+  "quiz_outro": [
+   "你猜对了吗？",
+   "再记一遍："
+  ],
+  "quiz_comment": "我第一眼就选对了！",
+  "flash_comment": "你最先记住了哪一个？",
+  "quiz_ok": "就是它",
+  "quiz_no": "其实是"
  },
  "name_hold_anchor": [
   3.0,
