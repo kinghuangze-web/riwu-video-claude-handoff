@@ -840,9 +840,13 @@ def book_layout(s):
             if bottom() > BK["lim"]: warns.append(f"图鉴式 {s['short']}.{st['kind']}: 重点块太高，缩到 {kk[i]:.2f} 倍仍放不下（框少一点）")
         if vis and kk[vis[-1]] * clips[vis[-1]]["px"] < 34:
             warns.append(f"图鉴式 {s['short']}.{st['kind']}: 剪报缩小后正文只有 {kk[vis[-1]] * clips[vis[-1]]['px']:.0f}px（框少一点）")
+        lays.append({"plate": plate, "fold": set(fold), "kk": dict(kk), "vis": vis, "spare": BK["lim"] - bottom() - 40})
+    # 标本照片加高：同一页里所有显示照片的步骤用同一个高度（按最挤的那一步算），贴剪报时整页不会上下跳
+    ex = int(min([300] + [max(0, l["spare"]) for l in lays if l["plate"]]))
+    for l in lays:
+        plate, fold, kk, vis = l.pop("plate"), l.pop("fold"), l.pop("kk"), l.pop("vis"); l.pop("spare")
         up = 0 if plate else BK["plate_h"] + 36
-        # 页面下方有空：把标本照片放大（最多再高 300），词条和剪报整体下移，不让下半屏空着
-        dy = int(min(300, max(0, BK["lim"] - bottom() - 40))) if plate else 0
+        dy = ex if plate else 0
         yy = head_end - up + dy
         cl = []
         for i in range(len(clips)):
@@ -850,7 +854,7 @@ def book_layout(s):
                 cl.append({"y": round(yy), "k": round(kk[i], 4), "fold": i in fold}); yy += blk(clips[i], kk[i], i in fold)
             else:
                 cl.append({"y": round(yy + 80), "k": clips[i]["k"], "fold": False})
-        lays.append({"plate": plate, "up": up - dy, "ex": dy, "clips": cl})
+        l.update({"plate": plate, "up": up - dy, "ex": dy, "clips": cl})
     return {"y": {k: round(v) for k, v in hy.items()}, "lays": lays, "etym": etym, "efs": efs, "lfs": lfs}
 
 def book(ep, scenes, B, events0):

@@ -112,7 +112,7 @@ const Hook: React.FC<{s: any; plan: Plan; t: number}> = ({s, plan, t}) => {
 
 // 大字名字：原生排字（不再切原图）。拆字时每段下面一条细线 + 这段的意思；hl 里的段（跨语言同一词根）变金色
 export const famOf = (f: string) => `"${f}", "Noto Serif CJK SC", "DejaVu Serif", serif`;
-const Word: React.FC<{w: any; C: any; fs: number; blur?: number; hl?: number[]; g?: number; parts?: boolean; pmFs?: number; pmO?: number; tint?: boolean}> = ({w, C, fs, blur = 0, hl = [], g = 0, parts = false, pmFs = 40, pmO = 1, tint = false}) => (
+const Word: React.FC<{w: any; C: any; fs: number; blur?: number; hl?: number[]; g?: number; parts?: boolean; pmFs?: number; pmO?: number; tint?: boolean; line?: boolean}> = ({w, C, fs, blur = 0, hl = [], g = 0, parts = false, pmFs = 40, pmO = 1, tint = false, line = false}) => (
   <div style={{whiteSpace: 'nowrap', fontFamily: famOf(w.family), fontWeight: 900, fontSize: fs, lineHeight: 1.2, letterSpacing: 2, color: C.ink}}>
     {w.segs.map((sg: any, i: number) => {
       const on = sg.p >= 0 && hl.includes(sg.p) && g > 0;
@@ -120,7 +120,8 @@ const Word: React.FC<{w: any; C: any; fs: number; blur?: number; hl?: number[]; 
       return (
         <span key={i} style={{position: 'relative', display: 'inline-block', whiteSpace: 'pre'}}>
           <span style={{filter: blur > 0.3 ? `blur(${blur}px)` : undefined, color: on && tint ? C.accent_text : C.ink,  // 金色文字一律用 accent_text（比 accent2 深一档），奶白底上看得清
-            background: on ? `linear-gradient(transparent 70%, ${C.accent} 70%, ${C.accent} 94%, transparent 94%)` : undefined, backgroundSize: on ? `${100 * g}% 100%` : undefined, backgroundRepeat: 'no-repeat'}}>{sg.t}</span>
+            backgroundImage: on && !line ? `linear-gradient(transparent 70%, ${C.accent} 70%, ${C.accent} 94%, transparent 94%)` : undefined, backgroundSize: on ? `${100 * g}% 100%` : undefined, backgroundRepeat: 'no-repeat'}}>{sg.t}</span>
+          {line && on && <span style={{position: 'absolute', left: '3%', top: '96%', width: `${94 * g}%`, height: Math.max(5, Math.round(fs * 0.055)), borderRadius: 4, background: C.accent2}} />}
           {parts && m && (
             <>
               <span style={{position: 'absolute', left: '8%', width: '84%', top: '98%', height: 5, borderRadius: 3, background: C.accent2, opacity: 0.55 * pmO}} />
@@ -192,7 +193,7 @@ const Lang: React.FC<{s: any; plan: Plan; t: number}> = ({s, plan, t}) => {
         <div style={{position: 'absolute', left: hx, top: at(Y.M), height: 72, display: 'flex', alignItems: 'center', gap: 18, opacity: clamp(mp * 2.5), transform: `translateX(${-40 * (1 - mp)}px)`}}>
           <div style={{background: C.ink, color: C.paper, fontFamily: SERIF, fontWeight: 900, fontSize: 32, padding: '6px 18px', borderRadius: 30, letterSpacing: 4}}>{TX.meaning}</div>
           <div style={{fontFamily: SERIF, fontWeight: 900, fontSize: 54, color: C.ink, letterSpacing: 3, whiteSpace: 'nowrap',
-            background: `linear-gradient(transparent 60%, ${C.accent} 60%, ${C.accent} 92%, transparent 92%)`, backgroundSize: `${100 * ramp(t, 10, 24)}% 100%`, backgroundRepeat: 'no-repeat'}}>{s.meaning}</div>
+            backgroundImage: `linear-gradient(transparent 60%, ${C.accent} 60%, ${C.accent} 92%, transparent 92%)`, backgroundSize: `${100 * ramp(t, 10, 24)}% 100%`, backgroundRepeat: 'no-repeat'}}>{s.meaning}</div>
         </div>
       )}
       {/* 又见面了：这一段和前面哪种语言的哪一段是同一个意思 */}
@@ -283,7 +284,7 @@ const Recap: React.FC<{s: any; plan: Plan; t: number}> = ({s, plan, t}) => {
         return (
           <>
             <div style={{position: 'absolute', left: 64, top: s.y_insight, width: 900, fontFamily: SERIF, fontWeight: 900, fontSize: 58, lineHeight: 1.35, color: C.ink, opacity: clamp(p * 2), transform: `scale(${lerp(1.2, 1, p)})`, transformOrigin: '0% 50%'}}>
-              <span style={{background: `linear-gradient(transparent 58%, ${C.accent} 58%, ${C.accent} 92%, transparent 92%)`, backgroundSize: `${100 * ramp(ti, 4, 18)}% 100%`, backgroundRepeat: 'no-repeat'}}>{s.insight}</span>
+              <span style={{backgroundImage: `linear-gradient(transparent 58%, ${C.accent} 58%, ${C.accent} 92%, transparent 92%)`, backgroundSize: `${100 * ramp(ti, 4, 18)}% 100%`, backgroundRepeat: 'no-repeat'}}>{s.insight}</span>
             </div>
             <Sparks x={70} y={s.y_insight + 10} f={ti - 2} r={46} color={C.accent2} n={3} a0={-120} />
           </>
@@ -311,7 +312,7 @@ const Outro: React.FC<{s: any; plan: Plan; t: number}> = ({s, plan, t}) => {
       <div style={{position: 'absolute', inset: 0, background: 'linear-gradient(rgba(20,12,6,0.62), rgba(20,12,6,0.5) 45%, rgba(20,12,6,0.72))'}} />
       <div style={{...big, top: 400, opacity: clamp(l1 * 2), transform: `scale(${lerp(1.5, 1, l1)})`}}>{s.lines[0]}</div>
       <div style={{...big, top: 546, opacity: clamp(l2 * 2), transform: `scale(${lerp(1.5, 1, l2)})`}}>
-        <span style={{background: `linear-gradient(transparent 62%, ${C.accent2}dd 62%, ${C.accent2}dd 92%, transparent 92%)`, backgroundSize: `${100 * ramp(t - B * 1.4, 6, 18)}% 100%`, backgroundRepeat: 'no-repeat'}}>{s.lines[1]}</span>
+        <span style={{backgroundImage: `linear-gradient(transparent 62%, ${C.accent2}dd 62%, ${C.accent2}dd 92%, transparent 92%)`, backgroundSize: `${100 * ramp(t - B * 1.4, 6, 18)}% 100%`, backgroundRepeat: 'no-repeat'}}>{s.lines[1]}</span>
       </div>
       {s.items.map((it: any, i: number) => {
         const p = sp(t - B * 2.2 - i * 3, {damping: 14});
@@ -607,7 +608,7 @@ const BLang: React.FC<{s: any; plan: Plan; t: number}> = ({s, plan, t}) => {
       )}
       {/* 词条：名字 / 读音 / 词源 / 字面 / 参见 */}
       <div style={{position: 'absolute', left: 64, top: Y.word + o, opacity: clamp(hp * 2.5) * (covered ? 0 : 1), transform: `scale(${lerp(1.2, 1, hp) * 1})`, transformOrigin: '0% 50%'}}>
-        <Word w={w} C={C} fs={w.fs} hl={hlP} g={g} />
+        <Word w={w} C={C} fs={w.fs} hl={hlP} g={g} line />
       </div>
       {inRc && <Sparks x={120} y={Y.word + o + w.fs * 0.6} f={rk - rc.t_reveal - 4} r={110} color={C.accent2} n={7} spread={26} a0={-120} />}
       {s.reading && Y.reading != null && (
@@ -630,7 +631,7 @@ const BLang: React.FC<{s: any; plan: Plan; t: number}> = ({s, plan, t}) => {
       {s.meaning && Y.mean != null && (
         <div style={{position: 'absolute', left: 64, top: Y.mean + o, height: 64, display: 'flex', alignItems: 'center', gap: 18, whiteSpace: 'nowrap', opacity: clamp(mp * 2) * (covered ? 0 : 1), transform: `translateX(${-30 * (1 - mp)}px)`}}>
           <span style={{border: `3px solid ${C.ink}`, color: C.ink, fontFamily: SERIF, fontWeight: 900, fontSize: 30, padding: '1px 14px', borderRadius: 8, letterSpacing: 4}}>{TX.meaning}</span>
-          <span style={{fontFamily: SERIF, fontWeight: 900, fontSize: 48, color: C.ink, letterSpacing: 3, background: `linear-gradient(transparent 60%, ${C.accent} 60%, ${C.accent} 92%, transparent 92%)`,
+          <span style={{fontFamily: SERIF, fontWeight: 900, fontSize: 48, color: C.ink, letterSpacing: 3, backgroundImage: `linear-gradient(transparent 60%, ${C.accent} 60%, ${C.accent} 92%, transparent 92%)`,
             backgroundSize: `${100 * ramp(t, 22, 36)}% 100%`, backgroundRepeat: 'no-repeat'}}>{s.meaning}</span>
         </div>
       )}
@@ -725,7 +726,7 @@ const BRecap: React.FC<{s: any; plan: Plan; t: number}> = ({s, plan, t}) => {
             <div style={{position: 'absolute', left: 64, top: y + wh / 2 - 30, width: 116, height: 60, borderRadius: 30, background: it.anchor ? C.accent : C.ink, color: it.anchor ? C.ink : C.paper,
               fontFamily: SERIF, fontWeight: 900, fontSize: 30, letterSpacing: 3, display: 'flex', alignItems: 'center', justifyContent: 'center'}}>{it.lang}</div>
             <div style={{position: 'absolute', left: 204, top: y, width: 760, height: wh, display: 'flex', alignItems: 'center', gap: 14}}>
-              <Word w={it.word} C={C} fs={it.bfs} hl={it.hlp} g={gw} />
+              <Word w={it.word} C={C} fs={it.bfs} hl={it.hlp} g={gw} line />
               <div style={{flex: 1, alignSelf: 'center', marginTop: wh * 0.25, borderBottom: `5px dotted ${C.sub}88`}} />
               <span style={{fontFamily: SERIF, fontWeight: 900, fontSize: 36, color: C.sub, whiteSpace: 'nowrap'}}>p.{pad2(i + 1)}</span>
             </div>
@@ -739,7 +740,7 @@ const BRecap: React.FC<{s: any; plan: Plan; t: number}> = ({s, plan, t}) => {
           <div style={{position: 'absolute', left: 64, top: by, width: 900, opacity: clamp(p * 2), transform: `scale(${lerp(1.1, 1, p)}) rotate(${lerp(-2, -0.6, p)}deg)`, transformOrigin: '0% 0%'}}>
             <div style={{position: 'relative', marginTop: 26, background: '#FBF3E2', border: `3px solid ${C.accent2}`, borderRadius: 10, padding: '44px 36px 30px', boxShadow: '0 14px 34px rgba(40,24,10,0.18)',
               fontFamily: SERIF, fontWeight: 900, fontSize: s.ifs, lineHeight: 1.35, color: C.ink}}>
-              <span style={{background: `linear-gradient(transparent 58%, ${C.accent} 58%, ${C.accent} 92%, transparent 92%)`, backgroundSize: `${100 * ramp(ti, 4, 18)}% 100%`, backgroundRepeat: 'no-repeat'}}>{s.insight}</span>
+              <span style={{backgroundImage: `linear-gradient(transparent 58%, ${C.accent} 58%, ${C.accent} 92%, transparent 92%)`, backgroundSize: `${100 * ramp(ti, 4, 18)}% 100%`, backgroundRepeat: 'no-repeat'}}>{s.insight}</span>
             </div>
             <span style={{position: 'absolute', left: 30, top: 0, background: C.accent_text, color: '#fff', fontFamily: SERIF, fontWeight: 900, fontSize: 32, padding: '6px 20px', borderRadius: 8, letterSpacing: 6}}>{TX.book_note}</span>
           </div>
@@ -756,7 +757,7 @@ const BOutro: React.FC<{s: any; plan: Plan; t: number}> = ({s, plan, t}) => {
   const chars = Array.from(s.comment as string);
   const typed = tf < 0 ? 0 : Math.min(chars.length, Math.floor(tf / 3));
   const caret = Math.floor(t / 9) % 2 === 0;
-  const n = s.items.length, step = 116, cy = 620, rows0 = cy + 130, cH = 130 + n * step + 150;
+  const n = s.items.length, step = Math.min(116, Math.floor(560 / n)), cy = 650, rows0 = cy + 130, cH = 130 + n * step + 150;
   const cp = sp(t + 8, {damping: 14});  // 翻到这一页时卡片已经在了（不出现空白页）
   const ep = String(plan.episode || '').replace(/^([A-Za-z]+)(\d+)$/, '$1.$2');
   const big: React.CSSProperties = {position: 'absolute', left: 64, fontFamily: SERIF, fontWeight: 900, fontSize: 96, color: C.ink, letterSpacing: 6, transformOrigin: '0% 50%', whiteSpace: 'nowrap'};
@@ -765,7 +766,7 @@ const BOutro: React.FC<{s: any; plan: Plan; t: number}> = ({s, plan, t}) => {
       <PageBg C={C} />
       <div style={{...big, top: 340, opacity: clamp(l1 * 2), transform: `scale(${lerp(1.4, 1, l1)})`}}>{s.lines[0]}</div>
       <div style={{...big, top: 466, opacity: clamp(l2 * 2), transform: `scale(${lerp(1.4, 1, l2)})`}}>
-        <span style={{background: `linear-gradient(transparent 62%, ${C.accent} 62%, ${C.accent} 92%, transparent 92%)`, backgroundSize: `${100 * ramp(t - B * 1.4, 6, 18)}% 100%`, backgroundRepeat: 'no-repeat'}}>{s.lines[1]}</span>
+        <span style={{backgroundImage: `linear-gradient(transparent 62%, ${C.accent} 62%, ${C.accent} 92%, transparent 92%)`, backgroundSize: `${100 * ramp(t - B * 1.4, 6, 18)}% 100%`, backgroundRepeat: 'no-repeat'}}>{s.lines[1]}</span>
       </div>
       <div style={{position: 'absolute', left: 64, top: cy, width: 900, height: cH, opacity: clamp(cp * 2), transform: `translateY(${80 * (1 - cp)}px) rotate(${lerp(3, 0.6, cp)}deg)`, transformOrigin: '50% 0%'}}>
         <div style={{position: 'absolute', inset: 0, background: '#FBF7F0', borderRadius: 14, boxShadow: '0 20px 50px rgba(40,24,10,0.25)',
